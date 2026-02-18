@@ -8,9 +8,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   const { debtorId, amount, currency = 'usd' } = await req.json();
 
+  // Validate inputs
+  if (!debtorId || typeof debtorId !== 'string') {
+    return new Response('Invalid request', { status: 400 });
+  }
+  if (typeof amount !== 'number' || amount <= 0 || !isFinite(amount)) {
+    return new Response('Invalid amount', { status: 400 });
+  }
+
   const { data: debtor } = await supabaseAdmin
     .from('debtors')
-    .select('*, merchant:merchants(name)')
+    .select('*, merchant:merchants(name, settlement_floor)')
     .eq('id', debtorId)
     .single();
 
@@ -18,7 +26,16 @@ export async function POST(req: Request) {
     return new Response('Debtor not found', { status: 404 });
   }
 
-  // Create Stripe Checkout Session
+  // Server-side validation: amount must not be less than the settlement floor
+  const settlementFloor = debtor.total_debt * Math.max(0.7, debtor.merchant.settlement_floor);
+  if (amount < settlementFloor * 0.99) {
+    // 1% tolerance for floating point rounding
+    return new Response('Amount below settlement floor', { status: 400 });
+  }
+  if (amount > debtor.total_debt * 1.01) {
+    return new Response('Amount exceeds debt', { status: 400 });
+  }
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
