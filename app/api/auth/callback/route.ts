@@ -29,7 +29,19 @@ export async function GET(request: Request) {
             name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'New Merchant',
           });
         
-        if (merchantError) {
+        if (!merchantError) {
+          // Seed a sample debtor for the new merchant
+          await supabaseAdmin
+            .from('debtors')
+            .insert({
+              merchant_id: user.id,
+              name: 'John Sample',
+              email: 'john@example.com',
+              total_debt: 1250.00,
+              currency: 'USD',
+              status: 'pending'
+            });
+        } else {
           console.error('Error creating merchant record:', merchantError);
         }
       }

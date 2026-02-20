@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { createClient } from '@/lib/supabase/server';
 import { uploadContract } from '../../actions/upload-contract';
 import { updateMerchantSettings } from '../../actions/merchant-settings';
 import { addDebtor } from '../../actions/add-debtor';
@@ -37,13 +38,44 @@ export default async function DashboardPage({
      return <div>Unauthorized</div>;
   }
 
-  const { data: merchant, error: merchantError } = await supabaseAdmin
+  let { data: merchant, error: merchantError } = await supabaseAdmin
     .from('merchants')
     .select('*')
     .eq('id', merchantId)
     .single();
 
   if (merchantError || !merchant) {
+    // Self-healing: If merchant not found, attempt to create it
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: newMerchant, error: createError } = await supabaseAdmin
+        .from('merchants')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'New Merchant',
+        })
+        .select()
+        .single();
+
+      if (!createError && newMerchant) {
+        merchant = newMerchant;
+        // Also seed a sample debtor
+        await supabaseAdmin.from('debtors').insert({
+          merchant_id: user.id,
+          name: 'John Sample',
+          email: 'john@example.com',
+          total_debt: 1250.00,
+          currency: 'USD',
+          status: 'pending'
+        });
+      }
+    }
+  }
+
+  if (!merchant) {
     return (
       <div className="p-10 bg-[#050505] min-h-screen text-white flex flex-col items-center justify-center space-y-6">
         <div className="w-20 h-20 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-2xl">
