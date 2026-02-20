@@ -5,6 +5,7 @@ import { updateMerchantSettings } from '../../actions/merchant-settings';
 import { addDebtor } from '../../actions/add-debtor';
 import { revalidatePath } from 'next/cache';
 import { Link } from '@/i18n/navigation';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import MobileBottomBar from '@/components/dashboard/MobileBottomBar';
 import DashboardTopNav from '@/components/dashboard/DashboardTopNav';
@@ -32,7 +33,9 @@ export default async function DashboardPage({
 }) {
   const t = await getTranslations('Dashboard');
   const merchantId = await getMerchantId();
-  const stripeSuccess = (await searchParams).stripe_success === 'true';
+  const search = await searchParams;
+  const stripeSuccess = search.stripe_success === 'true';
+  const forceDashboard = search.force_dashboard === 'true';
 
   if (!merchantId) {
      return <div>Unauthorized</div>;
@@ -89,6 +92,11 @@ export default async function DashboardPage({
         </div>
       </div>
     );
+  }
+
+  // Onboarding Check
+  if (!merchant.onboarding_complete && !forceDashboard) {
+    redirect('/onboarding');
   }
 
   const hasStripeAccount = !!merchant.stripe_account_id;

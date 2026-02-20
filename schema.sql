@@ -10,6 +10,7 @@ CREATE TABLE merchants (
   settlement_floor FLOAT DEFAULT 0.8, -- 80% default
   stripe_account_id TEXT,
   stripe_onboarding_complete BOOLEAN DEFAULT FALSE,
+  onboarding_complete BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

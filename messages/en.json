@@ -265,5 +265,28 @@
     "signUp": "Sign Up",
     "errorTitle": "Authentication Error",
     "successTitle": "Success"
+  },
+  "Onboarding": {
+    "title": "Welcome to",
+    "subtitle": "Complete your elite merchant profile to begin recovering revenue.",
+    "step1": "Business Profile",
+    "step1Desc": "Basic information",
+    "step2": "Recovery Policy",
+    "step2Desc": "Strictness & Floor",
+    "step3": "Document Index",
+    "step3Desc": "RAG Knowledge",
+    "step4": "Activation",
+    "step4Desc": "Final Review",
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "e.g. Venice Luxury Gym",
+    "next": "Next Step",
+    "back": "Back",
+    "complete": "Complete Setup",
+    "policyTitle": "AI Agent Configuration",
+    "policyDesc": "Define how firm or empathetic your recovery agent should be.",
+    "uploadTitle": "Knowledge Base",
+    "uploadDesc": "Upload your base service agreement. Our AI will cite specific clauses to debtors.",
+    "finishTitle": "Profile Ready",
+    "finishDesc": "Your profile is configured. You can now start adding debtors to your recovery pipeline."
   }
 }
