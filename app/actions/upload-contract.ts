@@ -65,26 +65,37 @@ export async function uploadContract(formData: FormData) {
     const chunks = chunkText(rawText);
     
     const embeddingFunction = async (chunk: string) => {
-        const embedding = await generateEmbedding(chunk);
-        return {
-            contract_id: contract.id,
-            content: chunk,
-            embedding: embedding,
-        };
+        try {
+            const embedding = await generateEmbedding(chunk);
+            return {
+                contract_id: contract.id,
+                content: chunk,
+                embedding: embedding,
+            };
+        } catch (err: any) {
+            console.error('Embedding generation failed for chunk:', err.message);
+            return null;
+        }
     };
 
     const embeddings = [];
     for (let i = 0; i < chunks.length; i += CONCURRENCY_LIMIT) {
         const batch = chunks.slice(i, i + CONCURRENCY_LIMIT);
         const batchResults = await Promise.all(batch.map(chunk => embeddingFunction(chunk)));
-        embeddings.push(...batchResults);
+        embeddings.push(...batchResults.filter(Boolean));
     }
 
-    const { error: embeddingsError } = await supabaseAdmin
-      .from('contract_embeddings')
-      .insert(embeddings);
+    if (embeddings.length > 0) {
+        const { error: embeddingsError } = await supabaseAdmin
+          .from('contract_embeddings')
+          .insert(embeddings);
 
-    if (embeddingsError) throw new Error(`Embeddings error: ${embeddingsError.message}`);
+        if (embeddingsError) {
+            console.error('Failed to insert embeddings:', embeddingsError.message);
+        }
+    } else {
+        console.warn('No embeddings generated. RAG will be unavailable for this contract.');
+    }
 
     return { success: true, contractId: contract.id };
   } catch (error: unknown) {
