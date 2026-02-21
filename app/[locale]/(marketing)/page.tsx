@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ArrowRight, Bot, ShieldCheck, Zap, BarChart3, Globe, Sparkles, ChevronRight, Lock } from 'lucide-react';
+import { ArrowRight, Bot, ShieldCheck, Zap, BarChart3, Globe, Sparkles, ChevronRight } from 'lucide-react';
 
 export default function LandingPage() {
   const t = useTranslations('Home');

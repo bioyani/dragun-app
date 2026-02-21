@@ -41,11 +41,14 @@ export default async function DashboardPage({
      return <div>Unauthorized</div>;
   }
 
-  let { data: merchant, error: merchantError } = await supabaseAdmin
+  const initialResponse = await supabaseAdmin
     .from('merchants')
     .select('*')
     .eq('id', merchantId)
     .single();
+    
+  let merchant = initialResponse.data;
+  const merchantError = initialResponse.error;
 
   if (merchantError || !merchant) {
     // Self-healing: If merchant not found by ID, check by email
@@ -298,7 +301,7 @@ export default async function DashboardPage({
                       placeholder="e.g. Venice Gym"
                       className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-[#D4AF37] focus:outline-none transition-all"
                     />
-                    <p className="text-[9px] text-white/20 font-medium">This name will appear on the debtor's bank statement.</p>
+                    <p className="text-[9px] text-white/20 font-medium">This name will appear on the debtor&apos;s bank statement.</p>
                   </div>
 
                   <div className="space-y-6">

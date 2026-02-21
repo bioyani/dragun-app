@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import { Settings, FileText, LogOut, ChevronDown, ShieldCheck, Wallet } from 'lucide-react';
 import { createStripeConnectAccount, createStripeLoginLink } from '@/app/actions/stripe-connect';
 import { signOut } from '@/app/actions/auth';

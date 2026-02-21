@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { signOut } from '@/app/actions/auth';
 import { User } from '@supabase/supabase-js';
-import { ShieldCheck, ChevronDown, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 export default function Navbar() {
   const t = useTranslations('Navbar');

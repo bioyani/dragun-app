@@ -1,5 +1,4 @@
 import { chunkText } from '../lib/chunking';
-import assert from 'assert';
 
 console.log('🧪 Testing chunkText...');
 

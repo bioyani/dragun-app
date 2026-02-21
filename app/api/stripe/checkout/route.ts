@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     return new Response('Debtor or merchant record not found', { status: 404 });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const merchant = debtor.merchant as any; // Cast for access
 
   // Server-side validation: amount must not be less than the settlement floor

@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       return new Response('Webhook secret not configured', { status: 500 });
     }
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(`Webhook signature verification failed: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
@@ -28,7 +29,6 @@ export async function POST(req: Request) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const debtorId = session.metadata?.debtor_id;
-    const merchantId = session.metadata?.merchant_id;
     
     if (debtorId) {
       // 1. Record Payment
