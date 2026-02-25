@@ -46,7 +46,9 @@ export async function updateSession(request: NextRequest) {
     // We need to account for the [locale] prefix if it exists
     // But for now let's just try to redirect to /login
     // next-intl handles the locale prefix usually.
-    url.pathname = '/login';
+    const path = request.nextUrl.pathname;
+    const localePrefix = path.split('/')[1];
+    url.pathname = localePrefix ? `/${localePrefix}/login` : '/login';
     return NextResponse.redirect(url);
   }
 

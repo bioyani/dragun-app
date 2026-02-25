@@ -4,8 +4,7 @@ import { uploadContract } from '../../actions/upload-contract';
 import { updateMerchantSettings } from '../../actions/merchant-settings';
 import { addDebtor } from '../../actions/add-debtor';
 import { revalidatePath } from 'next/cache';
-import { Link } from '@/i18n/navigation';
-import { redirect } from 'next/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import MobileBottomBar from '@/components/dashboard/MobileBottomBar';
 import DashboardTopNav from '@/components/dashboard/DashboardTopNav';
@@ -38,7 +37,7 @@ export default async function DashboardPage({
   const forceDashboard = search.force_dashboard === 'true';
 
   if (!merchantId) {
-     return <div>Unauthorized</div>;
+    redirect('/login');
   }
 
   const initialResponse = await supabaseAdmin
