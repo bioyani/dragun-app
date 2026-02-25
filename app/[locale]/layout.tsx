@@ -11,7 +11,11 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 const spaceGrotesk = Space_Grotesk({ variable: '--font-space-grotesk', subsets: ['latin'] });
-const spaceMono = Space_Mono({ variable: '--font-space-mono', subsets: ['latin'] });
+const spaceMono = Space_Mono({
+  variable: '--font-space-mono',
+  subsets: ['latin'],
+  weight: ['400', '700'],
+});
 
 export const metadata: Metadata = {
   title: 'Dragun.app | Intelligent Debt Recovery',
