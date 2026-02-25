@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import { arcjet, detectBot, shield } from '@arcjet/next';
+import arcjet, { detectBot, shield } from '@arcjet/next';
 
 const intlMiddleware = createMiddleware(routing);
 
