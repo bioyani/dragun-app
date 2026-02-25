@@ -142,6 +142,7 @@
     "sendMessage": "Envoyer le message"
   },
   "About": {
+    "badge": "Profil d’entreprise",
     "title": "Notre",
     "titleHighlight": "Mission",
     "paragraph": "Chez Dragun.app, nous pensons que le recouvrement ne doit pas être une bataille. En tant que produit de Meziani IA, nous combinons l’intelligence sub-seconde avec une approche empathique.",
@@ -151,6 +152,7 @@
     "foundedDesc": "Meziani IA a créé Dragun.app pour être plus qu’un simple clavardage—c’est un agent de résolution."
   },
   "Legal": {
+    "badge": "Confiance & conformité",
     "title": "Centre",
     "titleHighlight": "Juridique",
     "subtitle": "Dernière mise à jour: 20 février 2026. Confiance, transparence et quête de conformité.",
@@ -164,7 +166,8 @@
   "Integrations": {
     "title": "Intégrations",
     "titleHighlight": "Transparentes",
-    "subtitle": "Connectez vos outils existants à Dragun pour une expérience de recouvrement entièrement automatisée.",
+    "subtitle": "Écosystème fiable",
+    "supporting": "Connectez vos outils existants à Dragun pour une expérience de recouvrement entièrement automatisée.",
     "upcoming": "À venir",
     "stripeDesc": "Intégrez des sessions de paiement et gérez les transactions directement dans le clavardage.",
     "supabaseDesc": "Mises à jour en temps réel de votre pipeline de recouvrement via les déclencheurs Postgres.",

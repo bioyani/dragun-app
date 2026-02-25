@@ -5,11 +5,11 @@ export default function PricingPage() {
   const t = useTranslations('Pricing');
 
   return (
-    <main className="relative isolate bg-[#050505] min-h-screen text-white overflow-hidden">
+    <main className="relative isolate bg-[#0b1b2b] min-h-screen text-white overflow-hidden">
       {/* Premium Ambient Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#6419E6]/10 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#2fbf9a]/10 blur-[120px] rounded-full"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,transparent_70%)]"></div>
       </div>
 

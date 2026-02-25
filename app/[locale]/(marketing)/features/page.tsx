@@ -5,11 +5,11 @@ export default function FeaturesPage() {
   const t = useTranslations('Features');
 
   return (
-    <main className="relative isolate min-h-screen text-white overflow-hidden">
+    <main className="relative isolate min-h-screen text-white overflow-hidden bg-[#0b1b2b]">
       {/* Premium Ambient Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#6419E6]/10 blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#2fbf9a]/10 blur-[120px] rounded-full"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 pt-32 pb-40 flex flex-col items-center relative z-10">

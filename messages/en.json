@@ -142,6 +142,7 @@
     "sendMessage": "Send Message"
   },
   "About": {
+    "badge": "Company Overview",
     "title": "Our",
     "titleHighlight": "Mission",
     "paragraph": "At Dragun.app, we believe debt recovery doesn’t have to be a battle. As a product of Meziani AI, we combine sub-second intelligence with an empathetic approach to help businesses recover lost revenue.",
@@ -151,6 +152,7 @@
     "foundedDesc": "Meziani AI created Dragun.app to be more than just a chatbot—it’s an agent of resolution."
   },
   "Legal": {
+    "badge": "Trust & Compliance",
     "title": "Legal",
     "titleHighlight": "Center",
     "subtitle": "Last Updated: February 20, 2026. Trust, transparency, and the pursuit of compliance.",
@@ -164,7 +166,8 @@
   "Integrations": {
     "title": "Seamless",
     "titleHighlight": "Integrations",
-    "subtitle": "Connect your existing tools to Dragun for a fully automated recovery experience.",
+    "subtitle": "Trusted ecosystem",
+    "supporting": "Connect your existing tools to Dragun for a fully automated recovery experience.",
     "upcoming": "Upcoming",
     "stripeDesc": "Embed checkout sessions and handle payment directly in the chat.",
     "supabaseDesc": "Real-time updates to your recovery pipeline via Postgres triggers.",
