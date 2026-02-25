@@ -25,9 +25,14 @@ export default function ChatPage({ params }: { params: Promise<{ debtorId: strin
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
+  const [chatError, setChatError] = useState<string | null>(null);
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/chat',
     body: { debtorId },
+    onError: (err) => {
+      console.error('[chat]', err);
+      setChatError('The recovery agent is unavailable right now. Please try again in a moment.');
+    },
   });
 
   useEffect(() => {
@@ -94,6 +99,11 @@ export default function ChatPage({ params }: { params: Promise<{ debtorId: strin
 
       {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth scrollbar-hide">
+        {chatError && (
+          <div className="bg-[#F87272]/10 border border-[#F87272]/20 rounded-2xl p-4 text-[11px] text-[#F87272] font-bold uppercase tracking-widest">
+            {chatError}
+          </div>
+        )}
         {messages.length === 0 && (
           <div className="text-center py-20 space-y-8 animate-in fade-in duration-1000">
             <div className="relative inline-block">

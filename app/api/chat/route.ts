@@ -35,6 +35,11 @@ export async function POST(req: Request) {
       return new Response('Invalid message content', { status: 400 });
     }
 
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY missing');
+      return new Response('OPENROUTER_API_KEY missing', { status: 500 });
+    }
+
     // 1. Get debtor info and their merchant's contract
     const { data: debtor, error: debtorError } = await supabaseAdmin
       .from('debtors')
