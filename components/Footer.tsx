@@ -5,17 +5,17 @@ export default function Footer() {
   const t = useTranslations('Footer');
 
   return (
-    <footer className="px-6 py-20 bg-[#050505] border-t border-white/5">
+    <footer className="px-6 py-20 bg-[#0b1b2b] border-t border-white/10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
         <div className="col-span-1 md:col-span-2 space-y-6">
           <div className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 rounded-xl flex items-center justify-center font-bold text-[#D4AF37] shadow-lg">🐲</div>
-            <span className="text-xl font-bold tracking-tighter text-white">Dragun<span className="text-[#D4AF37]">.app</span></span>
+            <div className="w-8 h-8 bg-gradient-to-br from-[#0f2436] to-[#07121e] border border-[#d4af37]/30 rounded-xl flex items-center justify-center font-bold text-[#d4af37] shadow-lg">🐲</div>
+            <span className="text-xl font-bold tracking-tighter text-white">Dragun<span className="text-[#d4af37]">.app</span></span>
           </div>
-          <p className="text-sm text-white/40 max-w-xs leading-relaxed">
+          <p className="text-sm text-white/60 max-w-xs leading-relaxed">
             {t('tagline')}
           </p>
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
             {t('copyright')}
           </div>
         </div>
