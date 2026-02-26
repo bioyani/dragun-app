@@ -36,6 +36,8 @@ type RecoveryActionRow = {
   created_at: string;
 };
 
+const OPERATOR_ACTION_TYPES = ['status_update', 'call', 'sms', 'follow_up_scheduled'] as const;
+
 type DebtorRow = {
   id: string;
   name: string;
@@ -430,21 +432,28 @@ export default async function DashboardPage({
                           <ul className="mt-3 space-y-1 text-[11px] text-muted-foreground">
                             {actionTimelineByDebtor[d.id].map((a, idx) => (
                               <li key={`${d.id}-${idx}`}>
-                                {new Date(a.created_at).toLocaleDateString()} · {a.action_type} → {a.status_after}
+                                {new Date(a.created_at).toLocaleDateString()} · operator · {a.action_type} → {a.status_after}{a.note ? ` · ${a.note}` : ''}
                               </li>
                             ))}
                           </ul>
                         ) : null}
                         <div className="mt-4 space-y-2">
-                          <form action={handleRecoveryAction} className="flex items-center gap-2">
+                          <form action={handleRecoveryAction} className="space-y-2">
                             <input type="hidden" name="debtor_id" value={d.id} />
-                            <input type="hidden" name="action_type" value="status_update" />
-                            <select name="status" defaultValue={d.status} className="h-9 flex-1 rounded-lg border border-input bg-card px-2 text-xs">
-                              {COLLECTION_STATUSES.map((status) => (
-                                <option key={status} value={status}>{status}</option>
-                              ))}
-                            </select>
-                            <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
+                            <div className="flex items-center gap-2">
+                              <select name="action_type" defaultValue="status_update" className="h-9 rounded-lg border border-input bg-card px-2 text-xs">
+                                {OPERATOR_ACTION_TYPES.map((actionType) => (
+                                  <option key={actionType} value={actionType}>{actionType}</option>
+                                ))}
+                              </select>
+                              <select name="status" defaultValue={d.status} className="h-9 flex-1 rounded-lg border border-input bg-card px-2 text-xs">
+                                {COLLECTION_STATUSES.map((status) => (
+                                  <option key={status} value={status}>{status}</option>
+                                ))}
+                              </select>
+                              <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
+                            </div>
+                            <input name="note" placeholder="note (optional)" className="h-9 w-full rounded-lg border border-input bg-card px-2 text-xs" />
                           </form>
                           <div className="flex justify-end">
                             <Link
@@ -497,12 +506,17 @@ export default async function DashboardPage({
                               <div className="flex items-center justify-end gap-2">
                                 <form action={handleRecoveryAction} className="flex items-center gap-2">
                                   <input type="hidden" name="debtor_id" value={d.id} />
-                                  <input type="hidden" name="action_type" value="status_update" />
+                                  <select name="action_type" defaultValue="status_update" className="h-9 rounded-lg border border-input bg-background px-2 text-xs">
+                                    {OPERATOR_ACTION_TYPES.map((actionType) => (
+                                      <option key={actionType} value={actionType}>{actionType}</option>
+                                    ))}
+                                  </select>
                                   <select name="status" defaultValue={d.status} className="h-9 rounded-lg border border-input bg-background px-2 text-xs">
                                     {COLLECTION_STATUSES.map((status) => (
                                       <option key={status} value={status}>{status}</option>
                                     ))}
                                   </select>
+                                  <input name="note" placeholder="note" className="h-9 w-32 rounded-lg border border-input bg-background px-2 text-xs" />
                                   <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
                                 </form>
                                 <Link
