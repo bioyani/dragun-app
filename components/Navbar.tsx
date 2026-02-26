@@ -8,6 +8,7 @@ import { signOut } from '@/app/actions/auth';
 import { User } from '@supabase/supabase-js';
 import { Globe } from 'lucide-react';
 import Logo from '@/components/Logo';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Navbar() {
   const t = useTranslations('Navbar');
@@ -80,6 +81,7 @@ export default function Navbar() {
                 </button>
              </div>
           </div>
+          <ThemeToggle />
 
           {user ? (
             <div className="flex items-center gap-3">

@@ -33,12 +33,17 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Apply persisted theme before hydration to avoid flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
+            __html:
+              `(function(){try{` +
+              `var t=localStorage.getItem('theme')||'system';` +
+              `var dark=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);` +
+              `document.documentElement.classList.toggle('dark',dark);` +
+              `}catch(e){}})();`,
           }}
         />
       </head>

@@ -6,8 +6,13 @@ CREATE TABLE merchants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
+  country TEXT,
+  currency_preference TEXT DEFAULT 'CAD',
+  phone TEXT,
   strictness_level INT DEFAULT 5, -- 1-10 slider
   settlement_floor FLOAT DEFAULT 0.8, -- 80% default
+  onboarding_step TEXT DEFAULT 'profile',
+  onboarding_completed BOOLEAN DEFAULT FALSE,
   stripe_account_id TEXT,
   stripe_onboarding_complete BOOLEAN DEFAULT FALSE,
   onboarding_complete BOOLEAN DEFAULT FALSE,
