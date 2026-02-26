@@ -25,7 +25,16 @@ import {
   ShieldCheck,
   AlertCircle,
   ArrowRight,
+  Download,
 } from 'lucide-react';
+
+type RecoveryActionRow = {
+  debtor_id: string;
+  action_type: string;
+  status_after: string;
+  note: string | null;
+  created_at: string;
+};
 
 type DebtorRow = {
   id: string;
@@ -176,6 +185,13 @@ export default async function DashboardPage({
 
   const { data: debtorsData } = await supabaseAdmin.from('debtors').select('*').eq('merchant_id', merchantId);
   const debtors: DebtorRow[] = (debtorsData ?? []) as DebtorRow[];
+  const { data: recoveryActionsData } = await supabaseAdmin
+    .from('recovery_actions')
+    .select('*')
+    .eq('merchant_id', merchantId)
+    .order('created_at', { ascending: false })
+    .limit(250);
+  const recoveryActions: RecoveryActionRow[] = (recoveryActionsData ?? []) as RecoveryActionRow[];
 
   async function handleUpload(formData: FormData) {
     'use server';
@@ -210,6 +226,13 @@ export default async function DashboardPage({
 
   const actionableDebtors = debtors.filter((d) => d.status !== 'paid');
   const prioritizedDebtors = [...actionableDebtors].sort((a, b) => getRecoveryScore(b) - getRecoveryScore(a));
+  const top20Debtors = prioritizedDebtors.slice(0, 20);
+
+  const actionTimelineByDebtor = recoveryActions.reduce<Record<string, RecoveryActionRow[]>>((acc, action) => {
+    acc[action.debtor_id] = acc[action.debtor_id] || [];
+    if (acc[action.debtor_id].length < 3) acc[action.debtor_id].push(action);
+    return acc;
+  }, {});
 
   const totalOutstanding = debtors.reduce((acc, d) => acc + (d.status !== 'paid' ? d.total_debt : 0), 0);
   const totalRecovered = debtors.reduce((acc, d) => acc + (d.status === 'paid' ? d.total_debt : 0), 0);
@@ -371,9 +394,19 @@ export default async function DashboardPage({
                     <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Secure protocol active</p>
                   </div>
                 </div>
-                <button className="inline-flex h-10 items-center rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
-                  {t('filter')}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button className="inline-flex h-10 items-center rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
+                    {t('filter')}
+                  </button>
+                  <Link
+                    href="/api/recovery/export"
+                    prefetch={false}
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Export CSV
+                  </Link>
+                </div>
               </div>
 
               {prioritizedDebtors.length ? (
@@ -393,6 +426,15 @@ export default async function DashboardPage({
                             {getStatusLabel(d.status)}
                           </span>
                         </div>
+                        {actionTimelineByDebtor[d.id]?.length ? (
+                          <ul className="mt-3 space-y-1 text-[11px] text-muted-foreground">
+                            {actionTimelineByDebtor[d.id].map((a, idx) => (
+                              <li key={`${d.id}-${idx}`}>
+                                {new Date(a.created_at).toLocaleDateString()} · {a.action_type} → {a.status_after}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
                         <div className="mt-4 space-y-2">
                           <form action={handleRecoveryAction} className="flex items-center gap-2">
                             <input type="hidden" name="debtor_id" value={d.id} />
@@ -434,6 +476,11 @@ export default async function DashboardPage({
                             <td className="px-6 py-4">
                               <p className="text-sm font-semibold">{d.name}</p>
                               <p className="text-xs text-muted-foreground">{d.email}</p>
+                              {actionTimelineByDebtor[d.id]?.[0] ? (
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                  Last: {actionTimelineByDebtor[d.id][0].action_type} → {actionTimelineByDebtor[d.id][0].status_after}
+                                </p>
+                              ) : null}
                             </td>
                             <td className="px-6 py-4">
                               <p className="text-sm font-semibold">
@@ -486,6 +533,24 @@ export default async function DashboardPage({
           </div>
 
           <aside className="order-2 space-y-6 lg:col-span-4">
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-elev-1 sm:p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Top 20 Today</h2>
+                <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Pilot Board</span>
+              </div>
+              <div className="space-y-2">
+                {top20Debtors.slice(0, 8).map((d, idx) => (
+                  <div key={d.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2">
+                    <div>
+                      <p className="text-xs font-semibold">#{idx + 1} {d.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{d.currency} {d.total_debt.toLocaleString()} • {d.days_overdue ?? 0}d</p>
+                    </div>
+                    <span className="text-xs font-semibold">{getRecoveryScore(d)}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <section id="settings" className="rounded-2xl border border-border bg-card p-5 shadow-elev-1 sm:p-6">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-foreground">
