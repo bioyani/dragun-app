@@ -463,6 +463,14 @@ export default async function DashboardPage({
                     <Download className="h-3.5 w-3.5" />
                     Export CSV
                   </Link>
+                  <Link
+                    href="/api/recovery/audit-export"
+                    prefetch={false}
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Audit CSV
+                  </Link>
                 </div>
               </div>
 
@@ -509,6 +517,10 @@ export default async function DashboardPage({
                               <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
                             </div>
                             <input name="note" placeholder="note (optional)" className="h-9 w-full rounded-lg border border-input bg-card px-2 text-xs" />
+                            <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <input type="checkbox" name="confirm_escalated" value="yes" className="checkbox checkbox-xs" />
+                              confirm escalation
+                            </label>
                           </form>
                           <div className="flex justify-end">
                             <Link
@@ -572,6 +584,10 @@ export default async function DashboardPage({
                                     ))}
                                   </select>
                                   <input name="note" placeholder="note" className="h-9 w-32 rounded-lg border border-input bg-background px-2 text-xs" />
+                                  <label className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                                    <input type="checkbox" name="confirm_escalated" value="yes" className="checkbox checkbox-xs" />
+                                    escalate
+                                  </label>
                                   <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
                                 </form>
                                 <Link

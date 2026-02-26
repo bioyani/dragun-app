@@ -23,8 +23,8 @@ export async function GET() {
     }
 
     const { data, error } = await supabaseAdmin
-      .from('debtors')
-      .select('id,name,email,phone,total_debt,currency,status,days_overdue,last_contacted,created_at')
+      .from('recovery_actions')
+      .select('id,debtor_id,action_type,status_after,note,created_at')
       .eq('merchant_id', merchantId)
       .order('created_at', { ascending: false });
 
@@ -33,46 +33,21 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const header = [
-      'id',
-      'name',
-      'email',
-      'phone',
-      'total_debt',
-      'currency',
-      'status',
-      'days_overdue',
-      'last_contacted',
-      'created_at',
-    ];
+    const header = ['id', 'debtor_id', 'action_type', 'status_after', 'note', 'created_at'];
 
-    const rows = (data ?? []).map((d) =>
-      toCsvRow([
-        d.id,
-        d.name,
-        d.email,
-        d.phone,
-        d.total_debt,
-        d.currency,
-        d.status,
-        d.days_overdue,
-        d.last_contacted,
-        d.created_at,
-      ])
-    );
-
+    const rows = (data ?? []).map((a) => toCsvRow([a.id, a.debtor_id, a.action_type, a.status_after, a.note, a.created_at]));
     const csv = [toCsvRow(header), ...rows].join('\n');
 
     return new NextResponse(csv, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="dragun-recovery-export-${new Date().toISOString().slice(0, 10)}.csv"`,
+        'Content-Disposition': `attachment; filename="dragun-recovery-audit-${new Date().toISOString().slice(0, 10)}.csv"`,
         'Cache-Control': 'no-store',
       },
     });
   } catch (error) {
     Sentry.captureException(error);
-    return NextResponse.json({ error: 'Export failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Audit export failed' }, { status: 500 });
   }
 }
