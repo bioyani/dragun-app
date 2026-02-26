@@ -97,6 +97,11 @@ export default async function DashboardPage({
   const stripeSuccess = search.stripe_success === 'true';
   const forceDashboard = search.force_dashboard === 'true';
 
+  const statusFilter = String((Array.isArray(search.status) ? search.status[0] : search.status) || 'all');
+  const overdueFilter = String((Array.isArray(search.overdue) ? search.overdue[0] : search.overdue) || 'all');
+  const amountFilter = String((Array.isArray(search.amount) ? search.amount[0] : search.amount) || 'all');
+  const sortBy = String((Array.isArray(search.sort) ? search.sort[0] : search.sort) || 'score_desc');
+
   if (!merchantId) {
     redirect({ href: '/login', locale });
   }
@@ -227,7 +232,30 @@ export default async function DashboardPage({
   }
 
   const actionableDebtors = debtors.filter((d) => d.status !== 'paid');
-  const prioritizedDebtors = [...actionableDebtors].sort((a, b) => getRecoveryScore(b) - getRecoveryScore(a));
+
+  const filteredDebtors = actionableDebtors.filter((d) => {
+    if (statusFilter !== 'all' && d.status !== statusFilter) return false;
+
+    const overdue = d.days_overdue ?? 0;
+    if (overdueFilter === '0_30' && (overdue < 0 || overdue > 30)) return false;
+    if (overdueFilter === '31_60' && (overdue < 31 || overdue > 60)) return false;
+    if (overdueFilter === '61_plus' && overdue < 61) return false;
+
+    const amount = d.total_debt;
+    if (amountFilter === 'lt_200' && amount >= 200) return false;
+    if (amountFilter === '200_999' && (amount < 200 || amount > 999)) return false;
+    if (amountFilter === '1000_plus' && amount < 1000) return false;
+
+    return true;
+  });
+
+  const prioritizedDebtors = [...filteredDebtors].sort((a, b) => {
+    if (sortBy === 'amount_desc') return b.total_debt - a.total_debt;
+    if (sortBy === 'overdue_desc') return (b.days_overdue ?? 0) - (a.days_overdue ?? 0);
+    if (sortBy === 'created_desc') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return getRecoveryScore(b) - getRecoveryScore(a);
+  });
+
   const top20Debtors = prioritizedDebtors.slice(0, 20);
 
   const actionTimelineByDebtor = recoveryActions.reduce<Record<string, RecoveryActionRow[]>>((acc, action) => {
@@ -396,10 +424,37 @@ export default async function DashboardPage({
                     <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Secure protocol active</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button className="inline-flex h-10 items-center rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
-                    {t('filter')}
-                  </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <form method="get" className="flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="force_dashboard" value="true" />
+                    <select name="status" defaultValue={statusFilter} className="h-10 rounded-xl border border-border bg-background px-2 text-[11px]">
+                      <option value="all">all status</option>
+                      {COLLECTION_STATUSES.map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                    <select name="overdue" defaultValue={overdueFilter} className="h-10 rounded-xl border border-border bg-background px-2 text-[11px]">
+                      <option value="all">all overdue</option>
+                      <option value="0_30">0-30d</option>
+                      <option value="31_60">31-60d</option>
+                      <option value="61_plus">61+d</option>
+                    </select>
+                    <select name="amount" defaultValue={amountFilter} className="h-10 rounded-xl border border-border bg-background px-2 text-[11px]">
+                      <option value="all">all amount</option>
+                      <option value="lt_200">&lt;200</option>
+                      <option value="200_999">200-999</option>
+                      <option value="1000_plus">1000+</option>
+                    </select>
+                    <select name="sort" defaultValue={sortBy} className="h-10 rounded-xl border border-border bg-background px-2 text-[11px]">
+                      <option value="score_desc">score</option>
+                      <option value="amount_desc">amount</option>
+                      <option value="overdue_desc">overdue</option>
+                      <option value="created_desc">newest</option>
+                    </select>
+                    <button className="inline-flex h-10 items-center rounded-xl border border-border bg-background px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground">
+                      apply
+                    </button>
+                  </form>
                   <Link
                     href="/api/recovery/export"
                     prefetch={false}
