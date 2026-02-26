@@ -67,7 +67,7 @@ export default function ProfileForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+        <label className="text-xs uppercase tracking-[0.2em] text-foreground/40 font-semibold">
           {t('businessNameLabel')}
         </label>
         <input
@@ -75,13 +75,13 @@ export default function ProfileForm() {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder={t('businessNamePlaceholder')}
-          className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-base font-semibold text-white placeholder:text-white/30 focus:border-white/40 focus:bg-white/10 focus:outline-none"
+          className="w-full rounded-2xl border border-border bg-card/80 px-5 py-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+        <label className="text-xs uppercase tracking-[0.2em] text-foreground/40 font-semibold">
           {t('countryLabel')}
         </label>
         <input
@@ -89,9 +89,9 @@ export default function ProfileForm() {
           value={countryQuery}
           onChange={(event) => setCountryQuery(event.target.value)}
           placeholder={t('countrySearchPlaceholder')}
-          className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white placeholder:text-white/30 focus:border-white/40 focus:bg-white/10 focus:outline-none"
+          className="w-full rounded-2xl border border-border bg-card/80 px-5 py-3 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-44 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-44 overflow-y-auto rounded-2xl border border-border bg-card/70 p-3">
           {filteredCountries.map((item) => {
             const selected = country === item;
             return (
@@ -104,8 +104,8 @@ export default function ProfileForm() {
                 }}
                 className={`rounded-xl border px-3 py-2 text-left text-sm font-semibold transition ${
                   selected
-                    ? 'border-white/60 bg-white/20 text-white'
-                    : 'border-white/10 bg-white/5 text-white/70 hover:border-white/30 hover:text-white'
+                    ? 'border-ring bg-accent text-foreground'
+                    : 'border-border bg-card/80 text-muted-foreground hover:border-ring hover:text-foreground'
                 }`}
               >
                 {item}
@@ -114,12 +114,12 @@ export default function ProfileForm() {
           })}
         </div>
         {!country && (
-          <p className="text-xs text-white/30">{t('countryHelper')}</p>
+          <p className="text-xs text-foreground/30">{t('countryHelper')}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+        <label className="text-xs uppercase tracking-[0.2em] text-foreground/40 font-semibold">
           {t('currencyLabel')}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -132,8 +132,8 @@ export default function ProfileForm() {
                 onClick={() => setCurrency(item)}
                 className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
                   selected
-                    ? 'border-white/60 bg-white/20 text-white'
-                    : 'border-white/10 bg-white/5 text-white/70 hover:border-white/30 hover:text-white'
+                    ? 'border-ring bg-accent text-foreground'
+                    : 'border-border bg-card/80 text-muted-foreground hover:border-ring hover:text-foreground'
                 }`}
               >
                 {item}
@@ -144,7 +144,7 @@ export default function ProfileForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">
+        <label className="text-xs uppercase tracking-[0.2em] text-foreground/40 font-semibold">
           {t('phoneLabel')}
         </label>
         <input
@@ -152,7 +152,7 @@ export default function ProfileForm() {
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           placeholder={t('phonePlaceholder')}
-          className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-base font-semibold text-white placeholder:text-white/30 focus:border-white/40 focus:bg-white/10 focus:outline-none"
+          className="w-full rounded-2xl border border-border bg-card/80 px-5 py-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
         />
       </div>
 
@@ -165,7 +165,7 @@ export default function ProfileForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-2xl bg-white text-black py-4 text-sm font-black uppercase tracking-[0.2em] transition hover:opacity-90 disabled:opacity-60"
+        className="w-full rounded-2xl bg-primary py-4 text-sm font-black uppercase tracking-[0.2em] text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
       >
         {loading ? t('saving') : t('continue')}
       </button>

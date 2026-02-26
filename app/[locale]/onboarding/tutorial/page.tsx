@@ -17,11 +17,11 @@ export default async function OnboardingTutorialPage({
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-16">
+    <div className="min-h-screen bg-black text-foreground px-6 py-16">
       <div className="mx-auto w-full max-w-4xl">
         <TutorialClient />
       </div>
-      <p className="mt-10 text-center text-xs text-white/30">{t('footer')}</p>
+      <p className="mt-10 text-center text-xs text-foreground/30">{t('footer')}</p>
     </div>
   );
 }
