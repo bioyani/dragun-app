@@ -12,7 +12,7 @@ export default function IntegrationsPage() {
 
   return (
     <main className="bg-background text-foreground">
-      <section className="border-b border-border">
+      <section className="hero-glow border-b border-border">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-24">
           <div className="inline-flex w-fit items-center rounded-full border border-border bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {t('subtitle')}
@@ -24,10 +24,10 @@ export default function IntegrationsPage() {
         </div>
       </section>
 
-      <section>
+      <section className="bg-grid-soft">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
           {integrations.map((integration) => (
-            <article key={integration.name} className="rounded-2xl border border-border bg-card p-6 shadow-elev-1">
+            <article key={integration.name} className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1">
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{integration.icon}</span>
                 <span

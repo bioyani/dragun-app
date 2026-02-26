@@ -80,7 +80,7 @@ export default function InteractiveRecoveryDemo() {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-elev-1 lg:col-span-8">
+    <div className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1 lg:col-span-8">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Logo className="h-7 w-auto" />
@@ -99,7 +99,7 @@ export default function InteractiveRecoveryDemo() {
         Synthetic debtor data. Local browser simulation only. No real records or payments.
       </div>
 
-      <div className="max-h-80 space-y-3 overflow-y-auto rounded-xl border border-border bg-background p-4 text-sm">
+      <div className="max-h-80 space-y-3 overflow-y-auto rounded-xl border border-border bg-background/90 p-4 text-sm">
         {messages.map((message, idx) => (
           <div
             key={`${message.role}-${idx}`}
@@ -121,7 +121,7 @@ export default function InteractiveRecoveryDemo() {
             type="button"
             onClick={() => handleSend(preset)}
             disabled={typing}
-            className="rounded-full border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+            className="card-pep rounded-full border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
           >
             {preset}
           </button>
@@ -134,7 +134,7 @@ export default function InteractiveRecoveryDemo() {
           onChange={(event) => setInput(event.target.value)}
           placeholder={typing ? 'Agent is typing...' : 'Type a message to test the demo'}
           disabled={typing}
-          className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
         />
         <button
           type="submit"

@@ -24,15 +24,24 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
         setOpen(false);
       }
     }
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    }
     document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+      document.removeEventListener('keydown', onEscape);
+    };
   }, []);
 
   const initials = merchantName.substring(0, 2).toUpperCase();
 
   return (
     <div className="flex items-center gap-3">
-      <div className="hidden items-center rounded-full border border-border bg-card px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:flex">
+      <div className="hidden h-10 items-center rounded-full border border-border bg-card px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:flex">
         <div className="mr-2 h-1.5 w-1.5 rounded-full bg-foreground" />
         {merchantName}
       </div>
@@ -40,9 +49,10 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
       <div ref={dropdownRef} className="relative">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="group flex items-center gap-2 rounded-xl border border-border bg-card px-2 py-1.5 outline-none transition-colors hover:bg-accent"
+          className="group flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-2 outline-none transition-colors hover:bg-accent"
           aria-haspopup="true"
           aria-expanded={open}
+          aria-label="Open account menu"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-[10px] font-black tracking-tight text-foreground">
             {initials}
@@ -64,7 +74,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
               <a
                 href="#settings"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex min-h-11 items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <Settings className="h-4 w-4" />
                 <span>{t('agentParams')}</span>
@@ -73,7 +83,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
               <a
                 href="#knowledge"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex min-h-11 items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <FileText className="h-4 w-4" />
                 <span>{t('ragContext')}</span>
@@ -81,7 +91,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
 
               {isOnboardingComplete ? (
                 <form action={createStripeLoginLink}>
-                  <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                  <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     <Wallet className="h-4 w-4" />
                     <span>Stripe Dashboard</span>
                   </button>
@@ -89,7 +99,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
               ) : hasStripeAccount ? (
                 <form action={createStripeConnectAccount}>
                   <input type="hidden" name="locale" value={locale} />
-                  <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                  <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     <Wallet className="h-4 w-4" />
                     <span>Resume Setup</span>
                   </button>
@@ -97,7 +107,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
               ) : (
                 <form action={createStripeConnectAccount}>
                   <input type="hidden" name="locale" value={locale} />
-                  <button className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground transition-colors hover:bg-accent">
+                  <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground transition-colors hover:bg-accent">
                     <Wallet className="h-4 w-4" />
                     <span>Connect Stripe</span>
                   </button>
@@ -111,7 +121,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
                   await signOut();
                   window.location.href = '/';
                 }}
-                className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <LogOut className="h-4 w-4" />
                 <span>{t('backToSite')}</span>

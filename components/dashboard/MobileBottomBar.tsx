@@ -55,7 +55,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                     required
                     type="text"
                     placeholder="Jane Smith"
-                    className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
                   />
                 </div>
               </div>
@@ -69,7 +69,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                     required
                     type="email"
                     placeholder="jane@example.com"
-                    className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
                   />
                 </div>
               </div>
@@ -86,7 +86,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                       min="0.01"
                       step="0.01"
                       placeholder="1500.00"
-                      className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      className="w-full rounded-xl border border-border bg-card py-3.5 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
                     />
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                   <label className="ml-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t('debtorCurrency')}</label>
                   <select
                     name="currency"
-                    className="h-[50px] w-full cursor-pointer rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground outline-none"
+                    className="h-[50px] w-full cursor-pointer rounded-xl border border-border bg-card px-4 text-sm font-medium text-foreground outline-none focus:border-ring"
                   >
                     <option value="USD">USD</option>
                     <option value="CAD">CAD</option>
@@ -120,7 +120,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
       </dialog>
 
       <div className="fixed bottom-0 left-0 right-0 z-30 flex h-20 items-center justify-between border-t border-border bg-background px-6 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:hidden">
-        <a href="#top" className="flex flex-col items-center gap-1 text-foreground">
+        <a href="#top" className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-foreground">
           <BarChart3 className="h-5 w-5" />
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em]">{t('overview')}</span>
         </a>
@@ -133,7 +133,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
           <Plus className="h-6 w-6" />
         </button>
 
-        <a href="#debtors" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground">
+        <a href="#debtors" className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground">
           <Users className="h-5 w-5" />
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em]">{t('debtors')}</span>
         </a>

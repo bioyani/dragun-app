@@ -6,7 +6,7 @@ export default function Footer() {
   const t = useTranslations('Footer');
 
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="bg-grid-soft border-t border-border bg-background">
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 px-4 py-16 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div className="space-y-5 lg:col-span-2">
           <Logo className="h-8 w-auto" />

@@ -38,6 +38,7 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-xl">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/30 to-transparent" />
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center">
           <Logo className="h-8 w-auto" />

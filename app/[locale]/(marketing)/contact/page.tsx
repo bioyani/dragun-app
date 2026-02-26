@@ -6,7 +6,7 @@ export default function ContactPage() {
 
   return (
     <main className="bg-background text-foreground">
-      <section className="border-b border-border">
+      <section className="hero-glow border-b border-border">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-24">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5" />
@@ -19,9 +19,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section>
+      <section className="bg-grid-soft">
         <div className="mx-auto w-full max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-elev-2 sm:p-10">
+          <div className="card-pep rounded-2xl border border-border bg-card p-8 shadow-elev-2 sm:p-10">
             <form className="space-y-8">
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">

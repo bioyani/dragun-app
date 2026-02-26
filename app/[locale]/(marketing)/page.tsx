@@ -8,7 +8,7 @@ export default function LandingPage() {
 
   return (
     <main className="bg-background text-foreground">
-      <section className="border-b border-border">
+      <section className="hero-glow border-b border-border">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-20 pt-20 sm:px-6 lg:px-8 lg:pt-24">
           <div className="inline-flex w-fit items-center rounded-full border border-border bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {t('badge')}
@@ -39,16 +39,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="demo" className="border-b border-border">
+      <section id="demo" className="bg-grid-soft border-b border-border">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8">
           <InteractiveRecoveryDemo />
 
           <div className="grid grid-cols-1 gap-4 lg:col-span-4">
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-elev-1">
+            <div className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1">
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t('recoveryRateLabel')}</p>
               <p className="mt-2 text-4xl font-semibold">82%</p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-elev-1">
+            <div className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1">
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t('latencyLabel')}</p>
               <p className="mt-2 text-4xl font-semibold">2.1s</p>
             </div>
@@ -62,7 +62,7 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground">{t('socialProof')}</p>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {['NORTH POINT FITNESS', 'LUMEN DENTAL', 'ATLAS SERVICES', 'WELLSPRING CLINIC'].map((name) => (
-              <div key={name} className="rounded-xl border border-border bg-card px-4 py-3 text-center text-xs tracking-[0.12em] text-muted-foreground">
+              <div key={name} className="card-pep rounded-xl border border-border bg-card px-4 py-3 text-center text-xs tracking-[0.12em] text-muted-foreground">
                 {name}
               </div>
             ))}
@@ -78,7 +78,7 @@ export default function LandingPage() {
               { icon: Wallet, title: t('stripeTitle'), desc: t('stripeDesc') },
               { icon: Gauge, title: t('knowledgeTitle'), desc: t('knowledgeDesc') },
             ].map((feature) => (
-              <div key={feature.title} className="rounded-2xl border border-border bg-card p-8 shadow-elev-1">
+              <div key={feature.title} className="card-pep rounded-2xl border border-border bg-card p-8 shadow-elev-1">
                 <feature.icon className="h-6 w-6 text-foreground" />
                 <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
                 <p className="mt-3 text-sm text-muted-foreground">{feature.desc}</p>
@@ -93,7 +93,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t('howTitle')}</h2>
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             {[1, 2, 3].map((index) => (
-              <div key={index} className="rounded-2xl border border-border bg-card p-6 shadow-elev-1">
+              <div key={index} className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">0{index}</p>
                 <h3 className="mt-3 text-lg font-semibold">{t(`howStep${index}`)}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t(`howStep${index}Desc`)}</p>
@@ -108,7 +108,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t('securityTitle')}</h2>
           <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
             {[t('securityPoint1'), t('securityPoint2'), t('securityPoint3'), t('securityPoint4')].map((point) => (
-              <div key={point} className="flex items-start gap-3 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
+              <div key={point} className="card-pep flex items-start gap-3 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 text-foreground" />
                 <span>{point}</span>
               </div>

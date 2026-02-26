@@ -52,28 +52,31 @@ export default function TutorialClient() {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-foreground/40 font-semibold">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {t('eyebrow')}
           </p>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
             {t('title')}
           </h1>
-          <p className="text-foreground/60 text-sm sm:text-base mt-2 max-w-2xl">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
             {t('subtitle')}
           </p>
         </div>
         <button
           type="button"
           onClick={handleSkip}
-          className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60 hover:text-foreground transition"
+          className="inline-flex h-10 items-center self-start rounded-xl border border-border px-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
         >
           {t('skip')}
         </button>
       </div>
 
-      <div className="rounded-[2.5rem] border border-border bg-card p-8 sm:p-10 space-y-8">
+      <div className="rounded-[2rem] border border-border bg-card p-6 shadow-elev-1 sm:p-8">
+        <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-background">
+          <div className="h-full bg-primary transition-all" style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }} />
+        </div>
         <div className="flex flex-wrap items-center gap-4">
           {steps.map((step, index) => {
             const isActive = index === activeStep;
@@ -83,10 +86,10 @@ export default function TutorialClient() {
                 key={step.key}
                 className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${
                   isActive
-                    ? 'border-ring bg-accent text-foreground'
+                    ? 'border-ring bg-popover text-foreground'
                     : isComplete
-                    ? 'border-border bg-card/80 text-foreground'
-                    : 'border-border text-foreground/40'
+                    ? 'border-border bg-background text-foreground'
+                    : 'border-border text-muted-foreground'
                 }`}
               >
                 <span>{t('stepLabel', { count: index + 1 })}</span>
@@ -95,9 +98,9 @@ export default function TutorialClient() {
           })}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-2">
           <h2 className="text-2xl font-bold">{t(current.title)}</h2>
-          <p className="text-foreground/60 text-sm leading-relaxed whitespace-pre-line">
+          <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
             {t(current.description)}
           </p>
         </div>
