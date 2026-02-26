@@ -15,6 +15,9 @@ export async function POST(req: Request) {
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response('Invalid messages', { status: 400 });
     }
+    if (messages.length > 50) {
+      return new Response('Too many messages in a single request', { status: 400 });
+    }
 
     const convertedMessages = await convertToModelMessages(messages);
     const lastUserMessage = convertedMessages[convertedMessages.length - 1];
@@ -34,10 +37,13 @@ export async function POST(req: Request) {
     if (!lastMessageText || lastMessageText.trim().length === 0) {
       return new Response('Invalid message content', { status: 400 });
     }
+    if (lastMessageText.length > 5000) {
+      return new Response('Message is too long', { status: 400 });
+    }
 
     if (!process.env.OPENROUTER_API_KEY) {
       console.error('OPENROUTER_API_KEY missing');
-      return new Response('OPENROUTER_API_KEY missing', { status: 500 });
+      return new Response('Service temporarily unavailable', { status: 503 });
     }
 
     // 1. Get debtor info and their merchant's contract
@@ -65,20 +71,24 @@ export async function POST(req: Request) {
 
     let context = '';
     if (contract) {
-      // Create a search query based on the last message
-      const queryEmbedding = await generateEmbedding(lastMessageText);
+      try {
+        const queryEmbedding = await generateEmbedding(lastMessageText);
+        if (queryEmbedding) {
+          const { data: matches, error: matchError } = await supabaseAdmin.rpc('match_contract_embeddings', {
+            query_embedding: queryEmbedding,
+            match_threshold: 0.5,
+            match_count: 5,
+            p_contract_id: contract.id
+          });
 
-      const { data: matches, error: matchError } = await supabaseAdmin.rpc('match_contract_embeddings', {
-        query_embedding: queryEmbedding,
-        match_threshold: 0.5,
-        match_count: 5,
-        p_contract_id: contract.id
-      });
-
-      if (matchError) {
-          console.error('Vector search error:', matchError);
-      } else if (matches && matches.length > 0) {
-        context = (matches as Array<{ content: string }>).map((m) => m.content).join('\n---\n');
+          if (matchError) {
+            console.error('Vector search error:', matchError);
+          } else if (matches && matches.length > 0) {
+            context = (matches as Array<{ content: string }>).map((m) => m.content).join('\n---\n');
+          }
+        }
+      } catch (embeddingError) {
+        console.error('Embedding generation failed; continuing without RAG context', embeddingError);
       }
     }
 
@@ -119,14 +129,17 @@ export async function POST(req: Request) {
       system: systemPrompt,
       messages: convertedMessages,
       onFinish: async ({ text }) => {
-        // 5. Save messages to Supabase (fire and forget)
-        await supabaseAdmin.from('conversations').insert([
+        // 5. Save messages and update debtor activity.
+        await Promise.all([
+          supabaseAdmin.from('conversations').insert([
           { debtor_id: debtorId, role: 'user', message: lastMessageText },
           { debtor_id: debtorId, role: 'assistant', message: text },
+          ]),
+          supabaseAdmin
+            .from('debtors')
+            .update({ last_contacted: new Date().toISOString() })
+            .eq('id', debtorId),
         ]);
-        
-        // Update last contacted
-        await supabaseAdmin.from('debtors').update({ last_contacted: new Date().toISOString() }).eq('id', debtorId);
       }
     });
 

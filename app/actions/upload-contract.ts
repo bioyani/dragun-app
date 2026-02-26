@@ -76,8 +76,9 @@ export async function uploadContract(formData: FormData) {
                 content: chunk,
                 embedding: embedding,
             };
-        } catch (err: any) {
-            console.error('Embedding generation failed for chunk:', err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown embedding error';
+            console.error('Embedding generation failed for chunk:', message);
             return null;
         }
     };

@@ -16,8 +16,21 @@ const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 const spaceGrotesk = Space_Grotesk({ variable: '--font-space-grotesk', subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL ?? 'https://www.dragun.app'),
   title: 'Dragun.app | Intelligent Debt Recovery',
-  description: 'Automated, empathetic, and firm debt recovery powered by Gemini 2.0 Flash.',
+  description: 'Automated, empathetic, and firm debt recovery powered by AI negotiation workflows.',
+  openGraph: {
+    title: 'Dragun.app | Intelligent Debt Recovery',
+    description: 'Automated, empathetic, and firm debt recovery powered by AI negotiation workflows.',
+    url: '/',
+    siteName: 'Dragun.app',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Dragun.app | Intelligent Debt Recovery',
+    description: 'Automated, empathetic, and firm debt recovery powered by AI negotiation workflows.',
+  },
 };
 
 export default async function LocaleLayout({

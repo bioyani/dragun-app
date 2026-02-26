@@ -49,6 +49,10 @@ export const getChatModel = () => {
  * Matches the 768-dimension vector column in Supabase.
  */
 export async function generateEmbedding(text: string) {
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return null;
+  }
+
   const { embedding } = await embed({
     model: google.embedding('text-embedding-004'),
     value: text,

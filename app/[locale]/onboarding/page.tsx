@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { completeOnboarding } from '@/app/actions/merchant-settings';
-import { uploadContract } from '@/app/actions/upload-contract';
 import { 
   ChevronRight, 
   ChevronLeft, 

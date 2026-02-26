@@ -35,7 +35,6 @@ export async function ensureMerchant() {
   }
 
   // 3. Create new merchant record
-  console.log('Creating new merchant record for:', user.id, user.email);
   const { error: createError } = await supabaseAdmin
     .from('merchants')
     .insert({
@@ -48,12 +47,10 @@ export async function ensureMerchant() {
     console.error('Error creating merchant during ensureMerchant:', createError);
     // If it's a conflict, just return the ID (someone might have created it concurrently)
     if (createError.code === '23505') {
-        console.log('Merchant record already exists (23505 conflict), continuing.');
         return user.id;
     }
     throw new Error(`Failed to initialize merchant account: ${createError.message} (Code: ${createError.code})`);
   }
 
-  console.log('Successfully created merchant record for:', user.id);
   return user.id;
 }

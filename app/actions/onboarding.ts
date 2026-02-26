@@ -26,8 +26,9 @@ export async function updateOnboardingProfile(data: {
 
     if (error) throw new Error(error.message);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: message };
   }
 }
 
@@ -46,7 +47,8 @@ export async function completeOnboardingTutorial() {
 
     if (error) throw new Error(error.message);
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: message };
   }
 }
