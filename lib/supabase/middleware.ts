@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { routing } from '@/i18n/routing';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -36,7 +37,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const localePrefix = path.split('/')[1];
+  const firstSegment = path.split('/')[1];
+  const localePrefix = routing.locales.includes(firstSegment as (typeof routing.locales)[number])
+    ? firstSegment
+    : '';
   const withLocale = (target: string) => (localePrefix ? `/${localePrefix}${target}` : target);
 
   if (

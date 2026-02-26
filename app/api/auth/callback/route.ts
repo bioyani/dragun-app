@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   // if "next" is in search params, use it as the redirection URL after confirmation
   const next = searchParams.get('next') ?? '/dashboard';
+  const safeNext = next.startsWith('/') ? next : '/dashboard';
 
   if (code) {
     const supabase = await createClient();
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}${safeNext}`);
     }
   }
 

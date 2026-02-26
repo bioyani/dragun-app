@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   // if "next" is in search params, use it as the redirection URL after confirmation
   const next = searchParams.get('next') ?? '/dashboard';
+  const safeNext = next.startsWith('/') ? next : '/dashboard';
 
   if (code) {
     const supabase = await createClient();
@@ -67,7 +68,11 @@ export async function GET(request: Request) {
         .single();
 
       const onboardingCompleted = merchantData?.onboarding_completed ?? merchantData?.onboarding_complete ?? false;
-      const redirectPath = onboardingCompleted ? '/dashboard' : '/onboarding/profile';
+      const redirectPath = safeNext !== '/dashboard'
+        ? safeNext
+        : onboardingCompleted
+          ? '/dashboard'
+          : '/onboarding/profile';
 
       return NextResponse.redirect(`${origin}${redirectPath}`);
     }
