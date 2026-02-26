@@ -11,6 +11,7 @@ import DashboardTopNav from '@/components/dashboard/DashboardTopNav';
 import Logo from '@/components/Logo';
 import { getMerchantId } from '@/lib/auth';
 import { createStripeConnectAccount } from '@/app/actions/stripe-connect';
+import { COLLECTION_STATUSES, updateRecoveryStatus } from '@/app/actions/recovery-actions';
 import {
   Settings,
   FileText,
@@ -25,6 +26,51 @@ import {
   AlertCircle,
   ArrowRight,
 } from 'lucide-react';
+
+type DebtorRow = {
+  id: string;
+  name: string;
+  email: string;
+  currency: string;
+  total_debt: number;
+  status: string;
+  last_contacted: string | null;
+  days_overdue?: number | null;
+  created_at: string;
+};
+
+function getStatusBadgeClass(status: string): string {
+  if (status === 'paid') return 'border-success/30 bg-success/10 text-success';
+  if (status === 'escalated') return 'border-warning/30 bg-warning/10 text-warning';
+  if (status === 'promise_to_pay') return 'border-info/30 bg-info/10 text-info';
+  return 'border-border bg-background text-foreground';
+}
+
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case 'contacted':
+      return 'Contacted';
+    case 'promise_to_pay':
+      return 'Promise';
+    case 'no_answer':
+      return 'No Answer';
+    case 'escalated':
+      return 'Escalated';
+    case 'paid':
+      return 'Paid';
+    default:
+      return 'Pending';
+  }
+}
+
+function getRecoveryScore(d: DebtorRow): number {
+  const amountScore = Math.min(60, d.total_debt / 50);
+  const overdueDays = Math.max(0, d.days_overdue ?? 0);
+  const overdueScore = Math.min(30, overdueDays * 0.75);
+  const contactPenalty = d.last_contacted ? 10 : 0;
+  const statusBoost = d.status === 'promise_to_pay' ? 8 : d.status === 'escalated' ? 12 : 0;
+  return Math.max(0, Math.round(amountScore + overdueScore + statusBoost - contactPenalty));
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -128,7 +174,8 @@ export default async function DashboardPage({
     .limit(1)
     .single();
 
-  const { data: debtors } = await supabaseAdmin.from('debtors').select('*').eq('merchant_id', merchantId);
+  const { data: debtorsData } = await supabaseAdmin.from('debtors').select('*').eq('merchant_id', merchantId);
+  const debtors: DebtorRow[] = (debtorsData ?? []) as DebtorRow[];
 
   async function handleUpload(formData: FormData) {
     'use server';
@@ -155,8 +202,24 @@ export default async function DashboardPage({
     revalidatePath('/dashboard');
   }
 
-  const totalOutstanding = debtors?.reduce((acc, d) => acc + (d.status === 'pending' ? d.total_debt : 0), 0) || 0;
-  const totalRecovered = debtors?.reduce((acc, d) => acc + (d.status === 'paid' ? d.total_debt : 0), 0) || 0;
+  async function handleRecoveryAction(formData: FormData) {
+    'use server';
+    await updateRecoveryStatus(formData);
+    revalidatePath('/[locale]/dashboard', 'page');
+  }
+
+  const actionableDebtors = debtors.filter((d) => d.status !== 'paid');
+  const prioritizedDebtors = [...actionableDebtors].sort((a, b) => getRecoveryScore(b) - getRecoveryScore(a));
+
+  const totalOutstanding = debtors.reduce((acc, d) => acc + (d.status !== 'paid' ? d.total_debt : 0), 0);
+  const totalRecovered = debtors.reduce((acc, d) => acc + (d.status === 'paid' ? d.total_debt : 0), 0);
+  const contactedToday = debtors.filter((d) => {
+    if (!d.last_contacted) return false;
+    const lc = new Date(d.last_contacted);
+    const now = new Date();
+    return lc.getUTCFullYear() === now.getUTCFullYear() && lc.getUTCMonth() === now.getUTCMonth() && lc.getUTCDate() === now.getUTCDate();
+  }).length;
+  const promises = debtors.filter((d) => d.status === 'promise_to_pay').length;
 
   const stats = [
     {
@@ -174,18 +237,18 @@ export default async function DashboardPage({
       sub: t('vsAvg'),
     },
     {
-      label: t('activeChats'),
-      value: String(debtors?.length || 0),
+      label: 'Contacted Today',
+      value: String(contactedToday),
       icon: MessageSquare,
-      trend: '87%',
-      sub: t('replyRate'),
+      trend: `${Math.round((contactedToday / Math.max(1, actionableDebtors.length)) * 100)}%`,
+      sub: 'QUEUE TOUCHED',
     },
     {
-      label: t('avgSettle'),
-      value: '82%',
+      label: 'Promises',
+      value: String(promises),
       icon: CheckCircle2,
       trend: `MIN ${Math.round(merchant.settlement_floor * 100)}%`,
-      sub: 'EFFICIENCY',
+      sub: 'PROMISE TO PAY',
     },
   ];
 
@@ -313,10 +376,10 @@ export default async function DashboardPage({
                 </button>
               </div>
 
-              {debtors?.length ? (
+              {prioritizedDebtors.length ? (
                 <>
                   <div className="space-y-3 p-4 md:hidden">
-                    {debtors.map((d) => (
+                    {prioritizedDebtors.map((d) => (
                       <article key={d.id} className="rounded-xl border border-border bg-background p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -326,24 +389,30 @@ export default async function DashboardPage({
                               {d.currency} {d.total_debt.toLocaleString()}
                             </p>
                           </div>
-                          <span
-                            className={`inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
-                              d.status === 'pending'
-                                ? 'border-border bg-card text-foreground'
-                                : 'border-success/30 bg-success/10 text-success'
-                            }`}
-                          >
-                            {d.status === 'pending' ? t('negotiating') : t('settled')}
+                          <span className={`inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getStatusBadgeClass(d.status)}`}>
+                            {getStatusLabel(d.status)}
                           </span>
                         </div>
-                        <div className="mt-4 flex justify-end">
-                          <Link
-                            href={`/chat/${d.id}`}
-                            className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
-                          >
-                            {t('joinAI')}
-                            <ArrowUpRight className="h-3.5 w-3.5" />
-                          </Link>
+                        <div className="mt-4 space-y-2">
+                          <form action={handleRecoveryAction} className="flex items-center gap-2">
+                            <input type="hidden" name="debtor_id" value={d.id} />
+                            <input type="hidden" name="action_type" value="status_update" />
+                            <select name="status" defaultValue={d.status} className="h-9 flex-1 rounded-lg border border-input bg-card px-2 text-xs">
+                              {COLLECTION_STATUSES.map((status) => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                            <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
+                          </form>
+                          <div className="flex justify-end">
+                            <Link
+                              href={`/chat/${d.id}`}
+                              className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
+                            >
+                              {t('joinAI')}
+                              <ArrowUpRight className="h-3.5 w-3.5" />
+                            </Link>
+                          </div>
                         </div>
                       </article>
                     ))}
@@ -360,7 +429,7 @@ export default async function DashboardPage({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
-                        {debtors.map((d) => (
+                        {prioritizedDebtors.map((d) => (
                           <tr key={d.id} className="hover:bg-background/60">
                             <td className="px-6 py-4">
                               <p className="text-sm font-semibold">{d.name}</p>
@@ -370,27 +439,33 @@ export default async function DashboardPage({
                               <p className="text-sm font-semibold">
                                 {d.currency} {d.total_debt.toLocaleString()}
                               </p>
-                              <p className="text-xs text-muted-foreground">{t('daysPastDue')}</p>
+                              <p className="text-xs text-muted-foreground">{d.days_overdue ?? 0} days overdue • score {getRecoveryScore(d)}</p>
                             </td>
                             <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${
-                                  d.status === 'pending'
-                                    ? 'border-border bg-background text-foreground'
-                                    : 'border-success/30 bg-success/10 text-success'
-                                }`}
-                              >
-                                {d.status === 'pending' ? t('negotiating') : t('settled')}
+                              <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getStatusBadgeClass(d.status)}`}>
+                                {getStatusLabel(d.status)}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-right">
-                              <Link
-                                href={`/chat/${d.id}`}
-                                className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
-                              >
-                                {t('joinAI')}
-                                <ArrowUpRight className="h-3.5 w-3.5" />
-                              </Link>
+                              <div className="flex items-center justify-end gap-2">
+                                <form action={handleRecoveryAction} className="flex items-center gap-2">
+                                  <input type="hidden" name="debtor_id" value={d.id} />
+                                  <input type="hidden" name="action_type" value="status_update" />
+                                  <select name="status" defaultValue={d.status} className="h-9 rounded-lg border border-input bg-background px-2 text-xs">
+                                    {COLLECTION_STATUSES.map((status) => (
+                                      <option key={status} value={status}>{status}</option>
+                                    ))}
+                                  </select>
+                                  <button className="h-9 rounded-lg border border-border px-3 text-[10px] font-semibold uppercase tracking-[0.12em]">Save</button>
+                                </form>
+                                <Link
+                                  href={`/chat/${d.id}`}
+                                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-xs font-semibold uppercase tracking-[0.12em] text-foreground"
+                                >
+                                  {t('joinAI')}
+                                  <ArrowUpRight className="h-3.5 w-3.5" />
+                                </Link>
+                              </div>
                             </td>
                           </tr>
                         ))}

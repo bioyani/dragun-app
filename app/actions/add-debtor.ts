@@ -13,6 +13,7 @@ export async function addDebtor(formData: FormData) {
   const phone = (formData.get('phone') as string)?.trim() || null;
   const total_debt = parseFloat(formData.get('total_debt') as string);
   const currency = (formData.get('currency') as string) || 'USD';
+  const days_overdue = Math.max(0, parseInt((formData.get('days_overdue') as string) || '0', 10) || 0);
 
   if (!name || !email || isNaN(total_debt) || total_debt <= 0) {
     throw new Error('Missing or invalid required fields');
@@ -25,6 +26,7 @@ export async function addDebtor(formData: FormData) {
     phone,
     total_debt,
     currency,
+    days_overdue,
     status: 'pending',
   });
 
