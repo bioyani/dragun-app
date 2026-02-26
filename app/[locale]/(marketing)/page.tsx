@@ -1,7 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight, CheckCircle2, ShieldCheck, Gauge, Wallet } from 'lucide-react';
-import Logo from '@/components/Logo';
+import InteractiveRecoveryDemo from '@/components/InteractiveRecoveryDemo';
 
 export default function LandingPage() {
   const t = useTranslations('Home');
@@ -41,26 +41,7 @@ export default function LandingPage() {
 
       <section id="demo" className="border-b border-border">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-elev-1 lg:col-span-8">
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Logo className="h-7 w-auto" />
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{t('agentName')}</p>
-              </div>
-              <span className="rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                {t('encrypted')}
-              </span>
-            </div>
-            <div className="space-y-4 text-sm">
-              <div className="max-w-[85%] rounded-xl border border-border bg-background p-4 text-muted-foreground">
-                {t('chatBubble1')}
-              </div>
-              <div className="ml-auto max-w-[85%] rounded-xl bg-primary p-4 text-primary-foreground">{t('chatBubble2')}</div>
-              <div className="max-w-[85%] rounded-xl border border-border bg-background p-4 text-muted-foreground">
-                {t('chatBubble3')}
-              </div>
-            </div>
-          </div>
+          <InteractiveRecoveryDemo />
 
           <div className="grid grid-cols-1 gap-4 lg:col-span-4">
             <div className="rounded-2xl border border-border bg-card p-6 shadow-elev-1">

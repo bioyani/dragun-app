@@ -24,7 +24,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
 
   return (
     <>
-      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">
+      <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle text-foreground">
         <div className="modal-box overflow-hidden rounded-2xl border border-border bg-popover p-0 shadow-elev-2">
           <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
@@ -114,7 +114,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
           </div>
         </div>
 
-        <form method="dialog" className="modal-backdrop bg-black/70 backdrop-blur-sm">
+        <form method="dialog" className="modal-backdrop bg-background/80 backdrop-blur-sm">
           <button type="submit">close</button>
         </form>
       </dialog>
