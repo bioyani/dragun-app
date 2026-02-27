@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@ai-sdk/google": "^3.0.29",
     "@ai-sdk/openai": "^3.0.29",
     "@ai-sdk/react": "^0.0.70",
     "@arcjet/next": "^1.1.0",
@@ -34,12 +33,12 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
-    "tailwindcss-animate": "^1.0.7",
     "@types/node": "^20",
     "@types/react": "file:types-react-19.2.14.tgz",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   },
   "browserslist": "> 1%"

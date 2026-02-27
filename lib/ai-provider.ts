@@ -1,11 +1,6 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { embed } from 'ai';
 
-/**
- * OpenRouter — used for any model via OPENROUTER_API_KEY.
- * Supports DeepSeek, Llama, Mistral, Qwen, Gemma, etc.
- */
 const openrouter = createOpenAI({
   apiKey: process.env.OPENROUTER_API_KEY || '',
   baseURL: 'https://openrouter.ai/api/v1',
@@ -16,52 +11,47 @@ const openrouter = createOpenAI({
 });
 
 /**
- * Google AI — direct access to Gemini models (free tier generous).
- * Also used for embeddings.
+ * Free models via OpenRouter, ordered by quality for recovery conversations.
+ * Uses OPENROUTER_MODEL env var if set, otherwise walks the free tier list.
+ * All :free suffixed models have $0 cost on OpenRouter.
  */
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
-});
+const FREE_MODELS = [
+  'deepseek/deepseek-chat-v3-0324:free',
+  'google/gemini-2.5-flash-preview-05-20:free',
+  'meta-llama/llama-3.3-8b-instruct:free',
+  'qwen/qwen3-8b:free',
+] as const;
 
-/**
- * Model priority for the recovery agent:
- *
- * 1. OPENROUTER_MODEL env var — any model the operator chooses
- * 2. Google Gemini 2.5 Flash (free, fast, strong reasoning)
- * 3. DeepSeek Chat via OpenRouter (dirt cheap, excellent instruction following)
- * 4. Free fallback: Llama 3.1 8B via OpenRouter
- */
 export const getChatModel = () => {
-  const explicitModel = process.env.OPENROUTER_MODEL;
-
-  if (explicitModel && process.env.OPENROUTER_API_KEY) {
-    return openrouter(explicitModel);
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error('OPENROUTER_API_KEY is required. Get one free at openrouter.ai');
   }
 
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    return google('gemini-2.5-flash-preview-05-20');
+  const explicit = process.env.OPENROUTER_MODEL;
+  if (explicit) {
+    return openrouter(explicit);
   }
 
-  if (process.env.OPENROUTER_API_KEY) {
-    return openrouter('deepseek/deepseek-chat-v3-0324:free');
-  }
-
-  throw new Error(
-    'No AI provider configured. Set GOOGLE_GENERATIVE_AI_API_KEY or OPENROUTER_API_KEY.'
-  );
+  return openrouter(FREE_MODELS[0]);
 };
 
 /**
- * Gemini Text-Embedding-004 — 768-dimension vectors for RAG.
+ * Embeddings for RAG via OpenRouter (free nomic-embed model).
+ * Returns null if no API key -- RAG simply skips context retrieval.
  */
 export async function generateEmbedding(text: string) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!process.env.OPENROUTER_API_KEY) {
     return null;
   }
 
-  const { embedding } = await embed({
-    model: google.embedding('text-embedding-004'),
-    value: text,
-  });
-  return embedding;
+  try {
+    const { embedding } = await embed({
+      model: openrouter.embedding('nomic-ai/nomic-embed-text-v1.5'),
+      value: text,
+    });
+    return embedding;
+  } catch (e) {
+    console.error('Embedding generation failed:', e);
+    return null;
+  }
 }
