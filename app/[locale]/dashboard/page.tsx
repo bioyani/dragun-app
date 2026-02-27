@@ -11,7 +11,8 @@ import DashboardTopNav from '@/components/dashboard/DashboardTopNav';
 import Logo from '@/components/Logo';
 import { getMerchantId } from '@/lib/auth';
 import { createStripeConnectAccount } from '@/app/actions/stripe-connect';
-import { COLLECTION_STATUSES, updateRecoveryStatus } from '@/app/actions/recovery-actions';
+import { COLLECTION_STATUSES } from '@/lib/recovery-types';
+import { updateRecoveryStatus } from '@/app/actions/recovery-actions';
 import {
   Settings,
   FileText,
