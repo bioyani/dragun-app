@@ -60,8 +60,8 @@ const nextConfig: NextConfig = {
 
 const sentryConfig = {
   silent: true,
-  org: 'meziani-ai',
-  project: 'javascript-nextjs',
+  org: 'dragun',
+  project: 'prod-beta',
   authToken: process.env.SENTRY_AUTH_TOKEN,
 };
 

@@ -28,7 +28,7 @@ function isProtectedPath(pathname: string) {
   return PROTECTED_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   if (aj && isProtectedPath(request.nextUrl.pathname)) {
     const decision = await aj.protect(request);
     if (decision.isDenied()) {
