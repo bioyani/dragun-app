@@ -1,58 +1,49 @@
-# Dragun.app 🐲
+# Dragun.app
 
-Intelligent, empathetic, and firm debt recovery powered by **Gemini 2.0 Flash**.
+**Intelligent debt recovery powered by AI negotiation.**
 
-## 🚀 Features
-- **Agentic Recovery**: AI agents that negotiate with debtors using your specific contract terms.
-- **RAG-Powered**: Upload PDF contracts and the AI will cite them during disputes.
-- **Stripe Integration**: Automated settlement links for instant clearance.
-- **2027 Design**: Mobile-first, dark-mode, high-density bento grid interface.
+Dragun automates debt recovery with AI that negotiates professionally -- citing contract terms, offering flexible settlement paths, and maintaining full compliance. Built for businesses that want to recover revenue without destroying relationships.
 
-## 🛠 Tech Stack
-- **Frontend**: Next.js 16 (App Router), Tailwind CSS 4, DaisyUI.
-- **Backend**: Supabase (PostgreSQL + pgvector).
-- **AI**: Gemini 2.0 Flash (via Vercel AI SDK).
-- **Payments**: Stripe.
+## Stack
 
-## 🚦 Getting Started
+- **Framework**: Next.js 16 (App Router, Server Actions)
+- **UI**: Tailwind CSS v4, DaisyUI v5, Framer Motion
+- **Auth & DB**: Supabase (PostgreSQL, pgvector, Row-Level Security)
+- **AI**: Google Gemini 2.5 Flash / DeepSeek v3 via OpenRouter
+- **Payments**: Stripe Connect (destination charges, 5% platform fee)
+- **Monitoring**: Sentry, Vercel Analytics
+- **Security**: Arcjet (rate limiting, bot protection), CSP, HSTS
+- **i18n**: next-intl (EN/FR)
 
-### 1. Prerequisites
-- Node.js 20+
-- Supabase Project
-- Google AI (Gemini) API Key
-- Stripe Account
+## Architecture
 
-### 2. Environment Variables
-Create a `.env.local` file:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-OPENROUTER_API_KEY=your-openrouter-key
-GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-key
-STRIPE_SECRET_KEY=your-stripe-key
-STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
-SENTRY_DSN=your-sentry-dsn
-ARCJET_KEY=your-arcjet-key
-NEXT_PUBLIC_URL=http://localhost:3000
-```
+Two distinct experiences on one platform:
 
-### 3. Database Setup
-1. Run the contents of `schema.sql` in your Supabase SQL Editor.
-2. Run `seed.sql` to create the initial merchant and debtor records.
-3. Enable Storage: Create a bucket named `contracts`.
+- **Merchant Dashboard** — Data-dense operational control. Recovery queue, analytics, CSV import/export, configurable AI tone, Stripe Connect onboarding.
+- **Debtor Portal** — Calm, respectful resolution interface. Warm conversational AI, flexible payment options, secure Stripe checkout. Mobile-first.
 
-### 4. Install & Run
+## Getting Started
+
 ```bash
+cp .env.example .env.local
+# Fill in your Supabase, Stripe, and AI provider keys
 npm install
 npm run dev
 ```
 
-## 📦 Deployment (Vercel)
-1. Push this repo to your GitHub: `bioyani/dragun-app`.
-2. Connect the repository to Vercel.
-3. Add the Environment Variables in the Vercel dashboard.
-4. Deploy!
+## Environment Variables
 
----
-Built by **Yani** in the 24-Hour Sprint.
+See [`.env.example`](.env.example) for all required and optional variables.
+
+At minimum you need:
+- Supabase project URL + keys
+- At least one AI provider key (Google AI or OpenRouter)
+- Stripe secret key + webhook secret
+
+## Deployment
+
+Deployed on Vercel. Push to `main` triggers production deployment.
+
+## License
+
+Proprietary. All rights reserved. Meziani AI Inc.

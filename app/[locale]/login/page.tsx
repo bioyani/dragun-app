@@ -36,7 +36,7 @@ export default function LoginPage() {
         {/* Logo/Brand Area */}
         <div className="text-center mb-10">
           <div className="mb-6 inline-flex items-center justify-center">
-            <Logo className="h-8 w-auto" priority />
+            <Logo className="h-8 w-auto" />
           </div>
           <p className="text-white/40 text-[10px] font-black tracking-[0.3em] uppercase">
             {t('signIn')} TO YOUR EMPIRE

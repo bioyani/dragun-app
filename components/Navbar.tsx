@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { signOut } from '@/app/actions/auth';
 import type { User } from '@supabase/supabase-js';
-import { Globe, Menu } from 'lucide-react';
+import { Globe, Menu, ArrowRight } from 'lucide-react';
 import Logo from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -24,6 +24,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -40,22 +41,35 @@ export default function Navbar() {
     return () => data.subscription.unsubscribe();
   }, [supabase.auth]);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const switchLocale = (target: 'en' | 'fr') => {
     router.replace(pathname, { locale: target });
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-base-300/70 bg-base-100/85 backdrop-blur">
-      <div className="app-shell navbar min-h-16 px-0 sm:min-h-20">
-        <div className="navbar-start gap-2">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-base-300/70 bg-base-100/90 backdrop-blur-xl shadow-sm'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="app-shell flex h-16 items-center justify-between sm:h-20">
+        {/* Left */}
+        <div className="flex items-center gap-3">
           <div className="dropdown lg:hidden">
             <label tabIndex={0} className="btn btn-ghost btn-square btn-sm" aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </label>
-            <ul tabIndex={0} className="menu dropdown-content z-20 mt-3 w-56 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg">
+            <ul tabIndex={0} className="menu dropdown-content z-20 mt-3 w-56 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl">
               {links.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>{t(item.key)}</Link>
+                  <Link href={item.href} className="text-sm">{t(item.key)}</Link>
                 </li>
               ))}
             </ul>
@@ -65,29 +79,44 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal rounded-box border border-base-300/60 bg-base-200/50 px-2 text-sm">
+        {/* Center */}
+        <nav className="hidden lg:flex">
+          <ul className="flex items-center gap-1 rounded-full border border-base-300/50 bg-base-200/40 px-1.5 py-1">
             {links.map((item) => (
               <li key={item.href}>
-                <Link href={item.href}>{t(item.key)}</Link>
+                <Link
+                  href={item.href}
+                  className={`rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors ${
+                    pathname === item.href
+                      ? 'bg-base-100 text-base-content shadow-sm'
+                      : 'text-base-content/55 hover:text-base-content'
+                  }`}
+                >
+                  {t(item.key)}
+                </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
 
-        <div className="navbar-end gap-1 sm:gap-2">
-          <div className="hidden items-center gap-1 rounded-box border border-base-300/70 bg-base-200/60 p-1 sm:flex">
-            <Globe className="ml-1 h-3.5 w-3.5 text-base-content/55" />
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-0.5 rounded-full border border-base-300/50 bg-base-200/40 p-0.5 sm:flex">
+            <Globe className="ml-2 h-3 w-3 text-base-content/40" />
             <button
               onClick={() => switchLocale('en')}
-              className={`btn btn-xs ${locale === 'en' ? 'btn-primary' : 'btn-ghost'}`}
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all ${
+                locale === 'en' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/40 hover:text-base-content'
+              }`}
               type="button"
             >
               EN
             </button>
             <button
               onClick={() => switchLocale('fr')}
-              className={`btn btn-xs ${locale === 'fr' ? 'btn-primary' : 'btn-ghost'}`}
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all ${
+                locale === 'fr' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/40 hover:text-base-content'
+              }`}
               type="button"
             >
               FR
@@ -98,13 +127,13 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <Link href="/dashboard" className="btn btn-sm btn-outline">{t('dashboard')}</Link>
+              <Link href="/dashboard" className="btn btn-sm btn-ghost text-xs font-semibold">{t('dashboard')}</Link>
               <button
                 onClick={async () => {
                   await signOut();
                   window.location.href = '/';
                 }}
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-primary rounded-full px-4"
                 type="button"
               >
                 {t('signOut')}
@@ -112,8 +141,11 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/#demo" className="btn btn-sm btn-ghost hidden sm:inline-flex">{t('watchDemo')}</Link>
-              <Link href="/login" className="btn btn-sm btn-primary">{t('startPilot')}</Link>
+              <Link href="/#demo" className="btn btn-sm btn-ghost hidden sm:inline-flex text-xs text-base-content/55">{t('watchDemo')}</Link>
+              <Link href="/login" className="btn btn-sm btn-primary rounded-full gap-1.5 px-4">
+                {t('startPilot')}
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </>
           )}
         </div>

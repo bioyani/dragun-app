@@ -3,10 +3,16 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
 import { getMerchantId } from '@/lib/auth';
+import { checkPaywall } from '@/lib/paywall';
 
 export async function addDebtor(formData: FormData) {
   const merchantId = await getMerchantId();
   if (!merchantId) throw new Error('Unauthorized');
+
+  const pw = await checkPaywall(merchantId);
+  if (!pw.allowed) {
+    throw new Error(`Debtor limit reached (${pw.currentCount}/${pw.limit}). Upgrade your plan to add more.`);
+  }
 
   const name = (formData.get('name') as string)?.trim();
   const email = (formData.get('email') as string)?.trim();

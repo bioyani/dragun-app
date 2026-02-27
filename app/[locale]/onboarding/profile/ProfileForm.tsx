@@ -6,17 +6,8 @@ import { useRouter } from '@/i18n/navigation';
 import { updateOnboardingProfile } from '@/app/actions/onboarding';
 
 const countries = [
-  'Canada',
-  'United States',
-  'France',
-  'United Kingdom',
-  'Belgium',
-  'Germany',
-  'Spain',
-  'Italy',
-  'Netherlands',
-  'Australia',
-  'New Zealand',
+  'Canada', 'United States', 'France', 'United Kingdom', 'Belgium',
+  'Germany', 'Spain', 'Italy', 'Netherlands', 'Australia', 'New Zealand',
 ];
 
 const currencies = ['CAD', 'USD', 'EUR', 'GBP'];
@@ -67,107 +58,74 @@ export default function ProfileForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {t('businessNameLabel')}
-        </label>
+        <label className="text-label">{t('businessNameLabel')}</label>
         <input
           type="text"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(e) => setName(e.target.value)}
           placeholder={t('businessNamePlaceholder')}
-          className="h-12 w-full rounded-xl border border-input bg-background px-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+          className="input input-bordered h-12 w-full text-base font-semibold"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {t('countryLabel')}
-        </label>
+        <label className="text-label">{t('countryLabel')}</label>
         <input
           type="text"
           value={countryQuery}
-          onChange={(event) => setCountryQuery(event.target.value)}
+          onChange={(e) => setCountryQuery(e.target.value)}
           placeholder={t('countrySearchPlaceholder')}
-          className="h-11 w-full rounded-xl border border-input bg-background px-4 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+          className="input input-bordered h-11 w-full text-sm"
         />
-        <div className="grid max-h-44 grid-cols-1 gap-3 overflow-y-auto rounded-xl border border-border bg-card p-3 sm:grid-cols-2">
-          {filteredCountries.map((item) => {
-            const selected = country === item;
-            return (
-              <button
-                type="button"
-                key={item}
-                onClick={() => {
-                  setCountry(item);
-                  setCountryQuery(item);
-                }}
-                className={`rounded-xl border px-3 py-2 text-left text-sm font-semibold transition ${
-                  selected
-                    ? 'border-ring bg-popover text-foreground'
-                    : 'border-border bg-background text-muted-foreground hover:border-ring hover:text-foreground'
-                }`}
-              >
-                {item}
-              </button>
-            );
-          })}
+        <div className="grid max-h-44 grid-cols-1 gap-2 overflow-y-auto rounded-xl border border-base-300 bg-base-100 p-3 sm:grid-cols-2">
+          {filteredCountries.map((item) => (
+            <button
+              type="button"
+              key={item}
+              onClick={() => { setCountry(item); setCountryQuery(item); }}
+              className={`btn btn-sm justify-start ${country === item ? 'btn-primary' : 'btn-ghost'}`}
+            >
+              {item}
+            </button>
+          ))}
         </div>
-        {!country && (
-          <p className="text-xs text-foreground/30">{t('countryHelper')}</p>
-        )}
+        {!country && <p className="text-xs text-base-content/40">{t('countryHelper')}</p>}
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {t('currencyLabel')}
-        </label>
+        <label className="text-label">{t('currencyLabel')}</label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {currencies.map((item) => {
-            const selected = currency === item;
-            return (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setCurrency(item)}
-                className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${
-                  selected
-                    ? 'border-ring bg-popover text-foreground'
-                    : 'border-border bg-background text-muted-foreground hover:border-ring hover:text-foreground'
-                }`}
-              >
-                {item}
-              </button>
-            );
-          })}
+          {currencies.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setCurrency(item)}
+              className={`btn ${currency === item ? 'btn-primary' : 'btn-outline'}`}
+            >
+              {item}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {t('phoneLabel')}
-        </label>
+        <label className="text-label">{t('phoneLabel')}</label>
         <input
           type="tel"
           value={phone}
-          onChange={(event) => setPhone(event.target.value)}
+          onChange={(e) => setPhone(e.target.value)}
           placeholder={t('phonePlaceholder')}
-          className="h-12 w-full rounded-xl border border-input bg-background px-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+          className="input input-bordered h-12 w-full text-base font-semibold"
         />
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {error}
-        </div>
+        <div className="alert alert-error text-sm">{error}</div>
       )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-2xl bg-primary py-4 text-sm font-black uppercase tracking-[0.2em] text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
-      >
-        {loading ? t('saving') : t('continue')}
+      <button type="submit" disabled={loading} className="btn btn-primary w-full h-12 text-sm font-bold uppercase tracking-widest">
+        {loading ? <span className="loading loading-spinner loading-sm" /> : t('continue')}
       </button>
     </form>
   );

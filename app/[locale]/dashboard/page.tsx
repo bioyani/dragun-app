@@ -8,9 +8,13 @@ import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import MobileBottomBar from '@/components/dashboard/MobileBottomBar';
 import DashboardTopNav from '@/components/dashboard/DashboardTopNav';
+import PaywallBanner from '@/components/dashboard/PaywallBanner';
+import ImportDebtors from '@/components/dashboard/ImportDebtors';
 import Logo from '@/components/Logo';
 import { getMerchantId } from '@/lib/auth';
 import { createStripeConnectAccount } from '@/app/actions/stripe-connect';
+import { createSubscriptionCheckout } from '@/app/actions/subscription';
+import { checkPaywall } from '@/lib/paywall';
 import { COLLECTION_STATUSES } from '@/lib/recovery-types';
 import { updateRecoveryStatus } from '@/app/actions/recovery-actions';
 import {
@@ -27,6 +31,7 @@ import {
   AlertCircle,
   ArrowRight,
   Download,
+  CreditCard,
 } from 'lucide-react';
 
 type RecoveryActionRow = {
@@ -182,6 +187,9 @@ export default async function DashboardPage({
 
   const hasStripeAccount = !!merchant.stripe_account_id;
   const isOnboardingComplete = !!merchant.stripe_onboarding_complete;
+  const subscriptionSuccess = search.subscription_success === 'true';
+
+  const paywall = await checkPaywall(merchantId!);
 
   const { data: contract } = await supabaseAdmin
     .from('contracts')
@@ -209,8 +217,18 @@ export default async function DashboardPage({
 
   async function handleAddDebtor(formData: FormData) {
     'use server';
+    const mid = await getMerchantId();
+    if (mid) {
+      const pw = await checkPaywall(mid);
+      if (!pw.allowed) throw new Error(`Debtor limit reached (${pw.limit}). Upgrade your plan.`);
+    }
     await addDebtor(formData);
     revalidatePath('/[locale]/dashboard', 'page');
+  }
+
+  async function handleSubscribe(formData: FormData) {
+    'use server';
+    await createSubscriptionCheckout(formData);
   }
 
   async function handleUpdateSettings(formData: FormData) {
@@ -304,6 +322,13 @@ export default async function DashboardPage({
       trend: `MIN ${Math.round(merchant.settlement_floor * 100)}%`,
       sub: 'PROMISE TO PAY',
     },
+    {
+      label: 'Plan',
+      value: paywall.plan.toUpperCase(),
+      icon: CreditCard,
+      trend: `${paywall.currentCount}/${paywall.limit}`,
+      sub: 'DEBTORS USED',
+    },
   ];
 
   return (
@@ -363,6 +388,26 @@ export default async function DashboardPage({
           </div>
         )}
 
+        {subscriptionSuccess && (
+          <div className="alert alert-success">
+            <CreditCard className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">Subscription Activated</p>
+              <p className="text-sm">Your {paywall.plan} plan is now active. {paywall.limit} debtor slots available.</p>
+            </div>
+            <Link href="/dashboard" className="text-xs font-semibold uppercase tracking-[0.14em] hover:underline">
+              Dismiss
+            </Link>
+          </div>
+        )}
+
+        <PaywallBanner
+          currentCount={paywall.currentCount}
+          limit={paywall.limit}
+          plan={paywall.plan}
+          subscribeAction={handleSubscribe}
+        />
+
         {!isOnboardingComplete && (
           <section className="rounded-2xl border border-border bg-card p-5 shadow-elev-1 sm:p-7">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -390,7 +435,7 @@ export default async function DashboardPage({
           </section>
         )}
 
-        <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
           {stats.map((stat) => (
             <article key={stat.label} className="rounded-2xl border border-border bg-card p-4 shadow-elev-1 sm:p-6">
               <div className="flex items-start justify-between gap-3">
@@ -456,6 +501,7 @@ export default async function DashboardPage({
                       apply
                     </button>
                   </form>
+                  <ImportDebtors />
                   <Link
                     href="/api/recovery/export"
                     prefetch={false}

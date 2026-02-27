@@ -3,15 +3,16 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+const PLATFORM_FEE_PERCENT = 0.05;
+
 export async function POST(req: Request) {
   const { debtorId, amount, currency = 'usd' } = await req.json();
 
-  // Validate inputs
   if (!debtorId || typeof debtorId !== 'string') {
-    return new Response('Invalid request', { status: 400 });
+    return Response.json({ error: 'Invalid request' }, { status: 400 });
   }
   if (typeof amount !== 'number' || amount <= 0 || !isFinite(amount)) {
-    return new Response('Invalid amount', { status: 400 });
+    return Response.json({ error: 'Invalid amount' }, { status: 400 });
   }
 
   const { data: debtor, error: debtorError } = await supabaseAdmin
@@ -21,73 +22,87 @@ export async function POST(req: Request) {
     .single();
 
   if (debtorError || !debtor) {
-    console.error('Checkout lookup error:', debtorError);
-    return new Response('Debtor or merchant record not found', { status: 404 });
+    return Response.json({ error: 'Debtor or merchant not found' }, { status: 404 });
+  }
+
+  if (debtor.status === 'paid') {
+    return Response.json({ error: 'This account has already been settled' }, { status: 400 });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const merchant = debtor.merchant as any; // Cast for access
+  const merchant = debtor.merchant as any;
 
   const totalDebt = Number(debtor.total_debt);
   if (!Number.isFinite(totalDebt) || totalDebt <= 0) {
-    return new Response('Invalid debtor balance', { status: 400 });
+    return Response.json({ error: 'Invalid debtor balance' }, { status: 400 });
   }
 
   const settlementFloorRaw = Number(merchant?.settlement_floor);
-  const normalizedSettlementFloor = Number.isFinite(settlementFloorRaw)
-    ? settlementFloorRaw
-    : 0.8;
-  const settlementFloorRatio = Math.min(1, Math.max(0.7, normalizedSettlementFloor));
+  const normalizedFloor = Number.isFinite(settlementFloorRaw) ? settlementFloorRaw : 0.8;
+  const settlementFloorRatio = Math.min(1, Math.max(0.7, normalizedFloor));
 
-  // Server-side validation: amount must not be less than the settlement floor
-  const settlementFloor = totalDebt * settlementFloorRatio;
-  if (amount < settlementFloor * 0.99) {
-    // 1% tolerance for floating point rounding
-    return new Response('Amount below settlement floor', { status: 400 });
-  }
-  if (amount > totalDebt * 1.01) {
-    return new Response('Amount exceeds debt', { status: 400 });
+  const isInstallment = amount < totalDebt * 0.95;
+  const isFullOrSettlement = !isInstallment;
+
+  if (isFullOrSettlement) {
+    const settlementMin = totalDebt * settlementFloorRatio;
+    if (amount < settlementMin * 0.99) {
+      return Response.json({ error: 'Amount below settlement floor' }, { status: 400 });
+    }
+    if (amount > totalDebt * 1.01) {
+      return Response.json({ error: 'Amount exceeds debt' }, { status: 400 });
+    }
   }
 
-  // Stripe Checkout Configuration
+  const normalizedCurrency = currency.toLowerCase();
+  const amountCents = Math.round(amount * 100);
+  const feeCents = Math.round(amountCents * PLATFORM_FEE_PERCENT);
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+
+  const paymentType = isInstallment ? 'installment' : (amount < totalDebt * 0.99 ? 'settlement' : 'full');
+
   const sessionOptions: Stripe.Checkout.SessionCreateParams = {
     payment_method_types: ['card'],
     line_items: [
       {
         price_data: {
-          currency: currency,
+          currency: normalizedCurrency,
           product_data: {
-            name: `Debt Settlement - ${merchant.name}`,
+            name: `Debt ${paymentType === 'installment' ? 'Installment' : paymentType === 'settlement' ? 'Settlement' : 'Payment'} - ${merchant.name}`,
+            description: `Account ref: ${debtor.name} | ${paymentType} payment`,
           },
-          unit_amount: Math.round(amount * 100),
+          unit_amount: amountCents,
         },
         quantity: 1,
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_URL}/pay/${debtorId}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/chat/${debtorId}`,
+    success_url: `${baseUrl}/pay/${debtorId}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/chat/${debtorId}`,
     metadata: {
       debtor_id: debtorId,
       merchant_id: debtor.merchant_id,
+      payment_type: paymentType,
+      original_debt: String(totalDebt),
+      platform_fee_cents: String(feeCents),
     },
   };
 
-  // If the merchant has a connected account AND has completed onboarding, we use Destination Charges
   if (merchant.stripe_account_id && merchant.stripe_onboarding_complete) {
     sessionOptions.payment_intent_data = {
-      application_fee_amount: Math.round(amount * 100 * 0.05), // 5% Meziani AI Gateway Fee
+      application_fee_amount: feeCents,
       transfer_data: {
         destination: merchant.stripe_account_id,
       },
-      // This makes the merchant the 'Merchant of Record'
       on_behalf_of: merchant.stripe_account_id,
     };
   }
 
-  const session = await stripe.checkout.sessions.create(sessionOptions);
-
-  return new Response(JSON.stringify({ url: session.url }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    const session = await stripe.checkout.sessions.create(sessionOptions);
+    return Response.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe checkout creation failed:', err);
+    return Response.json({ error: 'Payment processing error. Please try again.' }, { status: 500 });
+  }
 }
