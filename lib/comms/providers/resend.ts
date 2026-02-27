@@ -53,14 +53,21 @@ export function createResendEmailProvider(): EmailProvider {
       const client = new Resend(config.apiKey);
 
       try {
-        const response = await client.emails.send({
+        const emailParams: any = {
           to: asArray(message.to),
           from: message.from ?? config.from!,
           subject: message.subject,
-          html: message.html,
-          text: message.text,
           tags: buildTags(message),
-        });
+        };
+
+        if (message.html) {
+          emailParams.html = message.html;
+        }
+        if (message.text) {
+          emailParams.text = message.text;
+        }
+
+        const response = await client.emails.send(emailParams);
 
         if (response.error) {
           return fail(response.error.name ?? 'RESEND_ERROR', response.error.message);
