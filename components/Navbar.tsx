@@ -127,13 +127,13 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <Link href="/dashboard" className="btn btn-sm btn-ghost text-xs font-semibold">{t('dashboard')}</Link>
+              <Link href="/dashboard" className="btn btn-ghost text-sm font-semibold">{t('dashboard')}</Link>
               <button
                 onClick={async () => {
                   await signOut();
                   window.location.href = '/';
                 }}
-                className="btn btn-sm btn-primary rounded-full px-4"
+                className="btn btn-primary rounded-full px-5"
                 type="button"
               >
                 {t('signOut')}
@@ -141,10 +141,10 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/#demo" className="btn btn-sm btn-ghost hidden sm:inline-flex text-xs text-base-content/55">{t('watchDemo')}</Link>
-              <Link href="/login" className="btn btn-sm btn-primary rounded-full gap-1.5 px-4">
+              <Link href="/#demo" className="btn btn-ghost hidden sm:inline-flex text-sm text-base-content/55">{t('watchDemo')}</Link>
+              <Link href="/login" className="btn btn-primary rounded-full gap-1.5 px-5">
                 {t('startPilot')}
-                <ArrowRight className="h-3 w-3" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </>
           )}

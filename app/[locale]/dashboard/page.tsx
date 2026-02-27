@@ -351,7 +351,7 @@ export default async function DashboardPage({
                 Your Stripe Connect account is ready to receive payments.
               </p>
             </div>
-            <Link href="/dashboard" className="btn btn-ghost btn-xs">
+            <Link href="/dashboard" className="btn btn-ghost btn-sm">
               Dismiss
             </Link>
           </div>
@@ -367,7 +367,7 @@ export default async function DashboardPage({
                 available.
               </p>
             </div>
-            <Link href="/dashboard" className="btn btn-ghost btn-xs">
+            <Link href="/dashboard" className="btn btn-ghost btn-sm">
               Dismiss
             </Link>
           </div>

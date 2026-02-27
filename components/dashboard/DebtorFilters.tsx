@@ -25,7 +25,7 @@ export default function DebtorFilters({
         <select
           name="status"
           defaultValue={statusFilter}
-          className="select select-bordered select-xs"
+          className="select select-bordered select-sm"
         >
           <option value="all">All status</option>
           {COLLECTION_STATUSES.map((s) => (
@@ -37,7 +37,7 @@ export default function DebtorFilters({
         <select
           name="overdue"
           defaultValue={overdueFilter}
-          className="select select-bordered select-xs"
+          className="select select-bordered select-sm"
         >
           <option value="all">All overdue</option>
           <option value="0_30">0–30d</option>
@@ -47,7 +47,7 @@ export default function DebtorFilters({
         <select
           name="amount"
           defaultValue={amountFilter}
-          className="select select-bordered select-xs"
+          className="select select-bordered select-sm"
         >
           <option value="all">All amount</option>
           <option value="lt_200">&lt;200</option>
@@ -57,32 +57,32 @@ export default function DebtorFilters({
         <select
           name="sort"
           defaultValue={sortBy}
-          className="select select-bordered select-xs"
+          className="select select-bordered select-sm"
         >
           <option value="score_desc">Score</option>
           <option value="amount_desc">Amount</option>
           <option value="overdue_desc">Overdue</option>
           <option value="created_desc">Newest</option>
         </select>
-        <button className="btn btn-ghost btn-xs">Apply</button>
+        <button className="btn btn-ghost btn-sm">Apply</button>
       </form>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         <ImportDebtors />
         <Link
           href="/api/recovery/export"
           prefetch={false}
-          className="btn btn-ghost btn-xs gap-1"
+          className="btn btn-ghost btn-sm gap-1.5"
         >
-          <Download className="h-3 w-3" />
+          <Download className="h-3.5 w-3.5" />
           CSV
         </Link>
         <Link
           href="/api/recovery/audit-export"
           prefetch={false}
-          className="btn btn-ghost btn-xs gap-1"
+          className="btn btn-ghost btn-sm gap-1.5"
         >
-          <Download className="h-3 w-3" />
+          <Download className="h-3.5 w-3.5" />
           Audit
         </Link>
       </div>

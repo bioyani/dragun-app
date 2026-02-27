@@ -160,7 +160,7 @@ export default function ChatPage({ params }: { params: Promise<{ debtorId: strin
         {actionChips.map((chip) => (
           <button
             key={chip}
-            className="btn btn-xs btn-ghost rounded-full border border-base-300/50 whitespace-nowrap text-[10px] font-semibold hover:btn-primary hover:border-primary"
+            className="btn btn-sm btn-ghost rounded-full border border-base-300/50 whitespace-nowrap text-xs font-semibold hover:btn-primary hover:border-primary"
             onClick={() => {
               const e = { target: { value: chip } } as React.ChangeEvent<HTMLInputElement>;
               handleInputChange(e);
