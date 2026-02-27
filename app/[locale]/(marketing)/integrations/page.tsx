@@ -30,7 +30,7 @@ export default function IntegrationsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl">{item.icon}</span>
                   <span className={`badge badge-sm ${item.status === 'upcoming' ? 'badge-outline' : 'badge-success badge-outline'}`}>
-                    {item.status === 'upcoming' ? t('upcoming') : 'Active'}
+                    {item.status === 'upcoming' ? t('upcoming') : t('active')}
                   </span>
                 </div>
                 <h2 className="mt-4 text-lg font-bold">{item.name}</h2>

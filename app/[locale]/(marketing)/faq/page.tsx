@@ -15,7 +15,7 @@ export default function FAQPage() {
     <main>
       <section className="hero-gradient py-16 sm:py-20">
         <div className="app-shell max-w-3xl space-y-5">
-          <span className="badge badge-primary badge-outline text-[10px] font-bold uppercase tracking-widest">Knowledge base</span>
+          <span className="badge badge-primary badge-outline text-[10px] font-bold uppercase tracking-widest">{t('badge')}</span>
           <h1 className="text-4xl font-bold sm:text-5xl">
             {t('title')} <span className="text-base-content/40">{t('titleHighlight')}</span>
           </h1>

@@ -15,9 +15,9 @@ export default function Footer() {
               {t('tagline')}
             </p>
             <div className="flex flex-wrap gap-2">
-              {['Stripe Connect', 'Audit Logs', 'RAG Indexing', 'SOC 2 Aligned'].map((tag) => (
-                <span key={tag} className="rounded-full border border-base-300/60 bg-base-100 px-3 py-1 text-[9px] font-semibold uppercase tracking-widest text-base-content/35">
-                  {tag}
+              {['tagStripe', 'tagAudit', 'tagRag', 'tagSoc'].map((key) => (
+                <span key={key} className="rounded-full border border-base-300/60 bg-base-100 px-3 py-1 text-[9px] font-semibold uppercase tracking-widest text-base-content/35">
+                  {t(key)}
                 </span>
               ))}
             </div>
@@ -44,7 +44,7 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-3">
-            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-base-content/35 mb-4">Contact</h2>
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-base-content/35 mb-4">{t('contactHeading')}</h2>
             <ul className="space-y-3 text-sm text-base-content/50">
               <li>hello@dragun.app</li>
               <li>legal@meziani.ai</li>
@@ -52,13 +52,13 @@ export default function Footer() {
             </ul>
 
             <div className="mt-8 rounded-xl border border-base-300/50 bg-base-100 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-base-content/30 mb-1">Status</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-base-content/30 mb-1">{t('statusLabel')}</p>
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
                 </span>
-                <span className="text-xs font-medium text-success">All systems operational</span>
+                <span className="text-xs font-medium text-success">{t('allOperational')}</span>
               </div>
             </div>
           </div>
