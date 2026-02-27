@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Download } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { COLLECTION_STATUSES } from '@/lib/recovery-types';
@@ -18,6 +19,8 @@ export default function DebtorFilters({
   amountFilter,
   sortBy,
 }: Props) {
+  const t = useTranslations('Dashboard');
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <form method="get" className="flex flex-wrap items-center gap-2">
@@ -27,7 +30,7 @@ export default function DebtorFilters({
           defaultValue={statusFilter}
           className="select select-bordered select-sm"
         >
-          <option value="all">All status</option>
+          <option value="all">{t('allStatus')}</option>
           {COLLECTION_STATUSES.map((s) => (
             <option key={s} value={s}>
               {s.replace(/_/g, ' ')}
@@ -39,7 +42,7 @@ export default function DebtorFilters({
           defaultValue={overdueFilter}
           className="select select-bordered select-sm"
         >
-          <option value="all">All overdue</option>
+          <option value="all">{t('allOverdue')}</option>
           <option value="0_30">0–30d</option>
           <option value="31_60">31–60d</option>
           <option value="61_plus">61+d</option>
@@ -49,7 +52,7 @@ export default function DebtorFilters({
           defaultValue={amountFilter}
           className="select select-bordered select-sm"
         >
-          <option value="all">All amount</option>
+          <option value="all">{t('allAmount')}</option>
           <option value="lt_200">&lt;200</option>
           <option value="200_999">200–999</option>
           <option value="1000_plus">1000+</option>
@@ -59,12 +62,12 @@ export default function DebtorFilters({
           defaultValue={sortBy}
           className="select select-bordered select-sm"
         >
-          <option value="score_desc">Score</option>
-          <option value="amount_desc">Amount</option>
-          <option value="overdue_desc">Overdue</option>
-          <option value="created_desc">Newest</option>
+          <option value="score_desc">{t('sortScore')}</option>
+          <option value="amount_desc">{t('sortAmount')}</option>
+          <option value="overdue_desc">{t('sortOverdue')}</option>
+          <option value="created_desc">{t('sortNewest')}</option>
         </select>
-        <button className="btn btn-ghost btn-sm">Apply</button>
+        <button className="btn btn-ghost btn-sm">{t('apply')}</button>
       </form>
 
       <div className="flex items-center gap-2">
@@ -75,7 +78,7 @@ export default function DebtorFilters({
           className="btn btn-ghost btn-sm gap-1.5"
         >
           <Download className="h-3.5 w-3.5" />
-          CSV
+          {t('exportCsv')}
         </Link>
         <Link
           href="/api/recovery/audit-export"
@@ -83,7 +86,7 @@ export default function DebtorFilters({
           className="btn btn-ghost btn-sm gap-1.5"
         >
           <Download className="h-3.5 w-3.5" />
-          Audit
+          {t('exportAudit')}
         </Link>
       </div>
     </div>

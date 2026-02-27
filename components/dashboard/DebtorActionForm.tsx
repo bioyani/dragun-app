@@ -1,9 +1,11 @@
 'use client';
 
-import { useRef, useTransition } from 'react';
-import { MoreHorizontal, X, Mail, MailPlus } from 'lucide-react';
+import { useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
+import { MoreHorizontal, X, Mail, MailPlus, MessageSquare } from 'lucide-react';
 import { COLLECTION_STATUSES } from '@/lib/recovery-types';
 import { sendInitialOutreach, sendFollowUp } from '@/app/actions/send-outreach';
+import { sendSmsOutreach } from '@/app/actions/send-sms';
 import type { DebtorRow } from './dashboard-types';
 
 const OPERATOR_ACTION_TYPES = [
@@ -19,8 +21,10 @@ interface Props {
 }
 
 export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props) {
+  const t = useTranslations('Dashboard');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isPending, startTransition] = useTransition();
+  const [smsType, setSmsType] = useState<'initial' | 'follow_up' | 'reminder'>('initial');
 
   function handleOpen() {
     dialogRef.current?.showModal();
@@ -36,17 +40,31 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
       fd.set('debtor_id', debtor.id);
       const result = await action(fd);
       if (!result.success) {
-        alert(result.error || 'Email failed');
+        alert(result.error || 'Failed');
       }
     });
   }
+
+  function handleSms() {
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set('debtor_id', debtor.id);
+      fd.set('sms_type', smsType);
+      const result = await sendSmsOutreach(fd);
+      if (!result.success) {
+        alert(result.error || 'Failed');
+      }
+    });
+  }
+
+  const hasPhone = !!debtor.phone;
 
   return (
     <>
       <button
         onClick={handleOpen}
         className="btn btn-sm btn-ghost btn-square"
-        aria-label="Update status"
+        aria-label={t('updateStatus')}
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>
@@ -57,14 +75,17 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
             <div>
               <h3 className="font-bold text-lg">{debtor.name}</h3>
               <p className="text-sm text-base-content/50">{debtor.email}</p>
+              {debtor.phone && (
+                <p className="text-sm text-base-content/40">{debtor.phone}</p>
+              )}
             </div>
             <button onClick={handleClose} className="btn btn-ghost btn-circle btn-sm">
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Email outreach buttons */}
-          <div className="flex gap-2 mb-4">
+          {/* Email outreach */}
+          <div className="flex gap-2 mb-3">
             <button
               onClick={() => handleEmail(sendInitialOutreach)}
               disabled={isPending}
@@ -75,7 +96,7 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
               ) : (
                 <Mail className="h-3.5 w-3.5" />
               )}
-              Initial Outreach
+              {t('emailOutreach')}
             </button>
             <button
               onClick={() => handleEmail(sendFollowUp)}
@@ -87,11 +108,41 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
               ) : (
                 <MailPlus className="h-3.5 w-3.5" />
               )}
-              Follow Up
+              {t('emailFollowUp')}
             </button>
           </div>
 
-          <div className="divider text-label my-2">Update Status</div>
+          {/* SMS outreach */}
+          <div className="flex gap-2 mb-4">
+            <select
+              value={smsType}
+              onChange={(e) => setSmsType(e.target.value as typeof smsType)}
+              className="select select-bordered select-sm flex-1"
+            >
+              <option value="initial">{t('smsInitial')}</option>
+              <option value="follow_up">{t('smsFollowUp')}</option>
+              <option value="reminder">{t('smsReminder')}</option>
+            </select>
+            <button
+              onClick={handleSms}
+              disabled={isPending || !hasPhone}
+              className="btn btn-sm btn-outline gap-1.5"
+              title={hasPhone ? t('sendSmsTitle') : t('noPhoneWarning')}
+            >
+              {isPending ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <MessageSquare className="h-3.5 w-3.5" />
+              )}
+              {t('sendBtn')}
+            </button>
+          </div>
+
+          {!hasPhone && (
+            <p className="text-xs text-warning mb-3">{t('noPhoneWarning')}</p>
+          )}
+
+          <div className="divider text-label my-2">{t('updateStatus')}</div>
 
           <form
             action={async (fd) => {
@@ -103,7 +154,7 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
             <input type="hidden" name="debtor_id" value={debtor.id} />
 
             <div className="form-control">
-              <label className="text-label mb-1">Action Type</label>
+              <label className="text-label mb-1">{t('actionType')}</label>
               <select
                 name="action_type"
                 defaultValue="status_update"
@@ -118,7 +169,7 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
             </div>
 
             <div className="form-control">
-              <label className="text-label mb-1">New Status</label>
+              <label className="text-label mb-1">{t('newStatus')}</label>
               <select
                 name="status"
                 defaultValue={debtor.status}
@@ -133,10 +184,10 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
             </div>
 
             <div className="form-control">
-              <label className="text-label mb-1">Note (optional)</label>
+              <label className="text-label mb-1">{t('noteLabel')}</label>
               <input
                 name="note"
-                placeholder="Add a note..."
+                placeholder={t('notePlaceholder')}
                 className="input input-bordered input-sm w-full"
               />
             </div>
@@ -149,12 +200,12 @@ export default function DebtorActionForm({ debtor, handleRecoveryAction }: Props
                 className="checkbox checkbox-xs checkbox-warning"
               />
               <span className="text-xs text-base-content/60">
-                Confirm escalation (required for escalated status)
+                {t('confirmEscalation')}
               </span>
             </label>
 
             <button type="submit" className="btn btn-primary btn-sm w-full mt-2">
-              Save
+              {t('save')}
             </button>
           </form>
         </div>

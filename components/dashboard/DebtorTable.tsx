@@ -14,15 +14,15 @@ function getStatusBadge(status: string) {
   return map[status] ?? 'badge-ghost';
 }
 
-function getStatusLabel(status: string) {
+function getStatusLabel(status: string, t: (key: string) => string) {
   const map: Record<string, string> = {
-    contacted: 'Contacted',
-    promise_to_pay: 'Promise',
-    no_answer: 'No Answer',
-    escalated: 'Escalated',
-    paid: 'Paid',
+    contacted: t('statusContacted'),
+    promise_to_pay: t('statusPromise'),
+    no_answer: t('statusNoAnswer'),
+    escalated: t('statusEscalated'),
+    paid: t('statusPaid'),
   };
-  return map[status] ?? 'Pending';
+  return map[status] ?? t('statusPending');
 }
 
 export function getRecoveryScore(d: DebtorRow): number {
@@ -42,7 +42,7 @@ interface Props {
   debtors: DebtorRow[];
   actionTimeline: Record<string, RecoveryActionRow[]>;
   handleRecoveryAction: (formData: FormData) => Promise<void>;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
 export default function DebtorTable({
@@ -79,7 +79,7 @@ export default function DebtorTable({
                   <p className="text-xs text-base-content/50">{d.email}</p>
                 </div>
                 <span className={`badge badge-sm ${getStatusBadge(d.status)}`}>
-                  {getStatusLabel(d.status)}
+                  {getStatusLabel(d.status, t)}
                 </span>
               </div>
 
@@ -88,13 +88,13 @@ export default function DebtorTable({
                   {d.currency} {d.total_debt.toLocaleString()}
                 </p>
                 <p className="text-xs text-base-content/40">
-                  {d.days_overdue ?? 0}d overdue
+                  {t('dOverdue', { days: String(d.days_overdue ?? 0) })}
                 </p>
               </div>
 
               {actionTimeline[d.id]?.[0] && (
                 <p className="text-[11px] text-base-content/40">
-                  Last: {actionTimeline[d.id][0].action_type} →{' '}
+                  {t('lastAction')} {actionTimeline[d.id][0].action_type} →{' '}
                   {actionTimeline[d.id][0].status_after}
                 </p>
               )}
@@ -137,7 +137,7 @@ export default function DebtorTable({
                     <p className="text-xs text-base-content/50">{d.email}</p>
                     {actionTimeline[d.id]?.[0] && (
                       <p className="mt-0.5 text-[11px] text-base-content/40">
-                        Last: {actionTimeline[d.id][0].action_type} →{' '}
+                        {t('lastAction')} {actionTimeline[d.id][0].action_type} →{' '}
                         {actionTimeline[d.id][0].status_after}
                       </p>
                     )}
@@ -148,12 +148,12 @@ export default function DebtorTable({
                     {d.currency} {d.total_debt.toLocaleString()}
                   </p>
                   <p className="text-xs text-base-content/40">
-                    {d.days_overdue ?? 0}d · score {getRecoveryScore(d)}
+                    {t('dScore', { days: String(d.days_overdue ?? 0), score: String(getRecoveryScore(d)) })}
                   </p>
                 </td>
                 <td>
                   <span className={`badge badge-sm ${getStatusBadge(d.status)}`}>
-                    {getStatusLabel(d.status)}
+                    {getStatusLabel(d.status, t)}
                   </span>
                 </td>
                 <td className="text-right">

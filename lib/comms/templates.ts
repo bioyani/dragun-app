@@ -1,3 +1,26 @@
+interface SmsOutreachParams {
+  debtorName: string;
+  merchantName: string;
+  amount: string;
+  currency: string;
+  chatUrl: string;
+}
+
+export function initialOutreachSms(p: SmsOutreachParams): string {
+  const firstName = p.debtorName.split(' ')[0];
+  return `Hi ${firstName}, you have an open balance of ${p.currency} ${p.amount} with ${p.merchantName}. We have flexible options available. Review them here: ${p.chatUrl}`;
+}
+
+export function followUpSms(p: SmsOutreachParams, daysSince: number): string {
+  const firstName = p.debtorName.split(' ')[0];
+  return `Hi ${firstName}, following up on your ${p.currency} ${p.amount} balance with ${p.merchantName} (${daysSince}d ago). Payment plans are still available: ${p.chatUrl}`;
+}
+
+export function paymentReminderSms(p: SmsOutreachParams): string {
+  const firstName = p.debtorName.split(' ')[0];
+  return `${firstName}, a quick reminder about your ${p.currency} ${p.amount} balance with ${p.merchantName}. Resolve it easily here: ${p.chatUrl}`;
+}
+
 interface OutreachParams {
   debtorName: string;
   merchantName: string;

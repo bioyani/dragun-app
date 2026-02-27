@@ -3,15 +3,16 @@ import { getRecoveryScore } from './DebtorTable';
 
 interface Props {
   debtors: DebtorRow[];
+  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
-export default function TopDebtors({ debtors }: Props) {
+export default function TopDebtors({ debtors, t }: Props) {
   return (
     <div className="card bg-base-200/50 border border-base-300/50 shadow-warm">
       <div className="card-body p-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold">Priority Queue</h2>
-          <span className="text-label">Top 8</span>
+          <h2 className="font-bold">{t('priorityQueue')}</h2>
+          <span className="text-label">{t('topN', { count: 8 })}</span>
         </div>
         <div className="space-y-1.5">
           {debtors.slice(0, 8).map((d, idx) => (

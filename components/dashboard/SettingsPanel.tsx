@@ -23,7 +23,7 @@ export default function SettingsPanel({ merchant, handleUpdateSettings, t }: Pro
 
         <form action={handleUpdateSettings} className="space-y-5">
           <div className="form-control">
-            <label className="text-label mb-1.5">Business Name</label>
+            <label className="text-label mb-1.5">{t('businessNameLabel')}</label>
             <input
               type="text"
               name="name"

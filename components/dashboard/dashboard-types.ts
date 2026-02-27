@@ -2,6 +2,7 @@ export type DebtorRow = {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   currency: string;
   total_debt: number;
   status: string;

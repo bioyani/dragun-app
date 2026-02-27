@@ -40,7 +40,7 @@ export default function KnowledgePanel({ contract, handleUpload, t }: Props) {
             <span className="text-label">{t('replacePDF')}</span>
           </label>
           <button className="btn btn-ghost btn-sm w-full">
-            Execute Indexing
+            {t('executeIndexing')}
           </button>
         </form>
 

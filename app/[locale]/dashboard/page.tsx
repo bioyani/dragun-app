@@ -293,25 +293,25 @@ export default async function DashboardPage({
       sub: t('vsAvg'),
     },
     {
-      label: 'Contacted Today',
+      label: t('contactedToday'),
       value: String(contactedToday),
       icon: MessageSquare,
       trend: `${Math.round((contactedToday / Math.max(1, actionableDebtors.length)) * 100)}%`,
-      sub: 'queue touched',
+      sub: t('queueTouched'),
     },
     {
-      label: 'Promises',
+      label: t('promises'),
       value: String(promises),
       icon: CheckCircle2,
       trend: `min ${Math.round(merchant.settlement_floor * 100)}%`,
-      sub: 'promise to pay',
+      sub: t('promiseToPay'),
     },
     {
-      label: 'Plan',
+      label: t('planLabel'),
       value: paywall.plan.toUpperCase(),
       icon: CreditCard,
       trend: `${paywall.currentCount}/${paywall.limit}`,
-      sub: 'debtors used',
+      sub: t('debtorsUsed'),
     },
   ];
 
@@ -346,13 +346,13 @@ export default async function DashboardPage({
           <div className="alert alert-success shadow-warm">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <div>
-              <p className="font-semibold">Gateway Activated</p>
+              <p className="font-semibold">{t('gatewayActivated')}</p>
               <p className="text-sm opacity-80">
-                Your Stripe Connect account is ready to receive payments.
+                {t('gatewayActivatedDesc')}
               </p>
             </div>
             <Link href="/dashboard" className="btn btn-ghost btn-sm">
-              Dismiss
+              {t('dismiss')}
             </Link>
           </div>
         )}
@@ -361,14 +361,13 @@ export default async function DashboardPage({
           <div className="alert alert-success shadow-warm">
             <CreditCard className="h-5 w-5 shrink-0" />
             <div>
-              <p className="font-semibold">Subscription Activated</p>
+              <p className="font-semibold">{t('subscriptionActivated')}</p>
               <p className="text-sm opacity-80">
-                Your {paywall.plan} plan is now active. {paywall.limit} debtor slots
-                available.
+                {t('subscriptionActivatedDesc', { plan: paywall.plan, limit: String(paywall.limit) })}
               </p>
             </div>
             <Link href="/dashboard" className="btn btn-ghost btn-sm">
-              Dismiss
+              {t('dismiss')}
             </Link>
           </div>
         )}
@@ -389,19 +388,19 @@ export default async function DashboardPage({
             <div>
               <p className="font-semibold">
                 {hasStripeAccount
-                  ? 'Complete Gateway Setup'
-                  : 'Activate Payment Gateway'}
+                  ? t('completeGatewaySetup')
+                  : t('activateGateway')}
               </p>
               <p className="text-sm opacity-70">
                 {hasStripeAccount
-                  ? 'Finish onboarding to start receiving recovered funds.'
-                  : 'Connect Stripe to collect debtor payments directly.'}
+                  ? t('finishOnboardingDesc')
+                  : t('connectStripeDesc')}
               </p>
             </div>
             <form action={createStripeConnectAccount}>
               <input type="hidden" name="locale" value={locale} />
               <button className="btn btn-primary btn-sm gap-1">
-                {hasStripeAccount ? 'Resume' : 'Setup Stripe'}
+                {hasStripeAccount ? t('resume') : t('setupStripe')}
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </form>
@@ -424,8 +423,8 @@ export default async function DashboardPage({
                   <div>
                     <h2 className="font-bold">{t('activeRecoveries')}</h2>
                     <p className="text-[11px] text-base-content/40">
-                      {prioritizedDebtors.length} active ·{' '}
-                      {debtors.filter((d) => d.status === 'paid').length} resolved
+                      {t('activeCount', { count: prioritizedDebtors.length })} ·{' '}
+                      {t('resolvedCount', { count: debtors.filter((d) => d.status === 'paid').length })}
                     </p>
                   </div>
                 </div>
@@ -441,14 +440,14 @@ export default async function DashboardPage({
                 debtors={prioritizedDebtors}
                 actionTimeline={actionTimelineByDebtor}
                 handleRecoveryAction={handleRecoveryAction}
-                t={(key: string) => t(key)}
+                t={(key: string, values?: Record<string, string | number>) => t(key, values)}
               />
             </div>
           </section>
 
           {/* Sidebar */}
           <aside className="space-y-6 lg:col-span-4">
-            <TopDebtors debtors={prioritizedDebtors} />
+            <TopDebtors debtors={prioritizedDebtors} t={(key: string, values?: Record<string, string | number>) => t(key, values)} />
             <SettingsPanel
               merchant={merchant}
               handleUpdateSettings={handleUpdateSettings}

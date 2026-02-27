@@ -34,7 +34,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold uppercase tracking-[0.12em]">{t('addDebtor')}</h3>
-                  <p className="text-label">Create recovery case</p>
+                  <p className="text-label">{t('createRecoveryCase')}</p>
                 </div>
               </div>
               <button
@@ -102,7 +102,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-label">Days Overdue</label>
+                <label className="text-label">{t('daysOverdue')}</label>
                 <input
                   name="days_overdue"
                   type="number"

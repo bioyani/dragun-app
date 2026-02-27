@@ -89,7 +89,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
                 <form action={createStripeLoginLink}>
                   <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-base-content/60 transition-colors hover:bg-base-300 hover:text-base-content">
                     <Wallet className="h-4 w-4" />
-                    <span>Stripe Dashboard</span>
+                    <span>{t('stripeDashboard')}</span>
                   </button>
                 </form>
               ) : hasStripeAccount ? (
@@ -97,7 +97,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
                   <input type="hidden" name="locale" value={locale} />
                   <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-base-content/60 transition-colors hover:bg-base-300 hover:text-base-content">
                     <Wallet className="h-4 w-4" />
-                    <span>Resume Setup</span>
+                    <span>{t('resumeSetup')}</span>
                   </button>
                 </form>
               ) : (
@@ -105,7 +105,7 @@ export default function DashboardTopNav({ merchantName, hasStripeAccount, isOnbo
                   <input type="hidden" name="locale" value={locale} />
                   <button className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-base-content transition-colors hover:bg-base-300">
                     <Wallet className="h-4 w-4" />
-                    <span>Connect Stripe</span>
+                    <span>{t('connectStripe')}</span>
                   </button>
                 </form>
               )}

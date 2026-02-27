@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Lock } from 'lucide-react';
 
 interface Props {
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export default function DebtorShell({ children, merchantName }: Props) {
+  const t = useTranslations('DebtorShell');
+
   return (
     <div data-theme="cupcake" className="min-h-screen bg-[#faf9f7] font-[Inter,system-ui,sans-serif] text-[#2d2d2d]">
       {children}
@@ -16,14 +19,14 @@ export default function DebtorShell({ children, merchantName }: Props) {
           <div className="flex items-center gap-2 text-[#999]">
             <Lock className="h-3 w-3" />
             <span className="text-[11px] font-medium">
-              Secured by Stripe &middot; 256-bit encryption
+              {t('securedBy')}
             </span>
           </div>
           {merchantName && (
             <p className="text-[11px] text-[#b0a99f]">
-              This communication is on behalf of {merchantName}.
+              {t('onBehalfOf', { merchant: merchantName })}
               <br />
-              Powered by Dragun.app
+              {t('poweredBy')}
             </p>
           )}
         </div>

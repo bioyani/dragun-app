@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Lock, Zap, ArrowRight } from 'lucide-react';
 import type { PlanTier } from '@/lib/paywall';
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function PaywallBanner({ currentCount, limit, plan, subscribeAction }: Props) {
+  const t = useTranslations('Dashboard');
   const isAtLimit = currentCount >= limit;
   const nearLimit = currentCount >= limit - 1;
 
@@ -28,12 +30,12 @@ export default function PaywallBanner({ currentCount, limit, plan, subscribeActi
             </div>
             <div>
               <h3 className="text-lg font-semibold">
-                {isAtLimit ? 'Debtor Limit Reached' : 'Approaching Limit'}
+                {isAtLimit ? t('limitReached') : t('approachingLimit')}
               </h3>
               <p className="mt-1 text-sm text-base-content/70">
                 {isAtLimit
-                  ? `You've reached ${limit} active debtors on the ${plan} plan. Upgrade to add more and unlock full recovery automation.`
-                  : `${currentCount} of ${limit} debtor slots used. Upgrade before you hit the limit.`
+                  ? t('limitReachedDesc', { limit: String(limit), plan })
+                  : t('approachingLimitDesc', { current: String(currentCount), limit: String(limit) })
                 }
               </p>
             </div>
@@ -43,7 +45,7 @@ export default function PaywallBanner({ currentCount, limit, plan, subscribeActi
             <form action={subscribeAction}>
               <input type="hidden" name="plan" value="starter" />
               <button className="btn btn-primary gap-2 h-11 px-5 text-sm font-semibold uppercase tracking-[0.14em]">
-                Upgrade to Starter
+                {t('upgradeToStarter')}
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
@@ -51,10 +53,10 @@ export default function PaywallBanner({ currentCount, limit, plan, subscribeActi
         </div>
 
         <div className="mt-3 flex gap-6 text-xs text-base-content/50">
-          <span>50 debtors</span>
-          <span>AI recovery agent</span>
-          <span>$49/mo</span>
-          <span>Cancel anytime</span>
+          <span>{t('fiftyDebtors')}</span>
+          <span>{t('aiRecoveryAgent')}</span>
+          <span>{t('pricePerMonth')}</span>
+          <span>{t('cancelAnytime')}</span>
         </div>
       </div>
     </div>

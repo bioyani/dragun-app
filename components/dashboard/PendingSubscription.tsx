@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowRight, CreditCard } from 'lucide-react';
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function PendingSubscription({ subscribeAction }: Props) {
+  const t = useTranslations('Dashboard');
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -36,16 +38,17 @@ export default function PendingSubscription({ subscribeAction }: Props) {
   };
 
   const details = planDetails[pendingPlan] ?? planDetails.starter;
+  const planLabel = pendingPlan.charAt(0).toUpperCase() + pendingPlan.slice(1);
 
   return (
     <div className="alert shadow-elevated border-primary/30 bg-primary/5">
       <CreditCard className="h-5 w-5 text-primary shrink-0" />
       <div className="flex-1">
         <p className="font-semibold">
-          Complete your {pendingPlan.charAt(0).toUpperCase() + pendingPlan.slice(1)} subscription
+          {t('completeSubscription', { plan: planLabel })}
         </p>
         <p className="text-sm text-base-content/60 mt-0.5">
-          {details.price} &middot; {details.debtors} &middot; Cancel anytime
+          {details.price} &middot; {details.debtors} &middot; {t('cancelAnytime')}
         </p>
       </div>
       <div className="flex gap-2">
@@ -53,7 +56,7 @@ export default function PendingSubscription({ subscribeAction }: Props) {
           onClick={() => setPendingPlan(null)}
           className="btn btn-ghost btn-sm"
         >
-          Dismiss
+          {t('dismiss')}
         </button>
         <button
           onClick={handleSubmit}
@@ -64,7 +67,7 @@ export default function PendingSubscription({ subscribeAction }: Props) {
             <span className="loading loading-spinner loading-xs" />
           ) : (
             <>
-              Subscribe
+              {t('subscribe')}
               <ArrowRight className="h-3.5 w-3.5" />
             </>
           )}
