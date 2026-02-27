@@ -50,7 +50,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={cycle}
-      className="btn btn-ghost btn-square btn-sm"
+      className="btn btn-ghost btn-square h-10 min-h-10 w-10"
       aria-label={`Theme: ${theme}. Click to switch.`}
       title={`Theme: ${theme}`}
     >
