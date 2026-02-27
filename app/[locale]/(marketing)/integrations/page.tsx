@@ -1,4 +1,6 @@
 import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function IntegrationsPage() {
   const t = useTranslations('Integrations');
@@ -13,37 +15,35 @@ export default function IntegrationsPage() {
   return (
     <main className="bg-background text-foreground">
       <section className="hero-glow border-b border-border">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-24">
-          <div className="inline-flex w-fit items-center rounded-full border border-border bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {t('subtitle')}
+        <div className="section-shell section-gap">
+          <div className="max-w-5xl space-y-7">
+            <Badge>{t('subtitle')}</Badge>
+            <h1 className="text-4xl font-semibold tracking-tightest sm:text-6xl">
+              {t('title')} <span className="text-muted-foreground">{t('titleHighlight')}</span>
+            </h1>
+            <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">{t('supporting')}</p>
           </div>
-          <h1 className="max-w-4xl text-4xl font-semibold tracking-tightest sm:text-6xl">
-            {t('title')} <span className="text-muted-foreground">{t('titleHighlight')}</span>
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground sm:text-lg">{t('supporting')}</p>
         </div>
       </section>
 
-      <section className="bg-grid-soft">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
-          {integrations.map((integration) => (
-            <article key={integration.name} className="card-pep rounded-2xl border border-border bg-card p-6 shadow-elev-1">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl">{integration.icon}</span>
-                <span
-                  className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-                    integration.status === 'upcoming'
-                      ? 'border-border bg-background text-muted-foreground'
-                      : 'border-ring bg-popover text-foreground'
-                  }`}
-                >
-                  {integration.status === 'upcoming' ? t('upcoming') : 'Active'}
-                </span>
-              </div>
-              <h2 className="mt-4 text-lg font-semibold">{integration.name}</h2>
-              <p className="mt-3 text-sm text-muted-foreground">{integration.description}</p>
-            </article>
-          ))}
+      <section>
+        <div className="section-shell section-gap">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {integrations.map((integration) => (
+              <Card key={integration.name} className="card-pep">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl" aria-hidden>{integration.icon}</span>
+                    <Badge variant={integration.status === 'upcoming' ? 'outline' : 'secondary'}>
+                      {integration.status === 'upcoming' ? t('upcoming') : 'Active'}
+                    </Badge>
+                  </div>
+                  <h2 className="mt-4 text-lg font-semibold">{integration.name}</h2>
+                  <p className="mt-3 text-sm text-muted-foreground">{integration.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
     </main>

@@ -1,78 +1,24 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/theme.css";
 
 @custom-variant dark (&:is(.dark *));
-
-:root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 6%;
-}
-
-.dark {
-  --background: 0 0% 3%;
-  --foreground: 0 0% 96%;
-
-  --card: 0 0% 5%;
-  --card-foreground: 0 0% 96%;
-  --popover: 0 0% 6%;
-  --popover-foreground: 0 0% 96%;
-
-  --primary: 0 0% 96%;
-  --primary-foreground: 0 0% 6%;
-
-  --secondary: 0 0% 10%;
-  --secondary-foreground: 0 0% 96%;
-
-  --muted: 0 0% 9%;
-  --muted-foreground: 0 0% 68%;
-
-  --accent: 0 0% 12%;
-  --accent-foreground: 0 0% 96%;
-
-  --destructive: 0 72% 52%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 0 0% 14%;
-  --input: 0 0% 14%;
-  --ring: 0 0% 92%;
-
-  --radius: 1rem;
-  --glow: 0 0% 98%;
-
-  --surface-0: 0 0% 3%;
-  --surface-1: 0 0% 5%;
-  --surface-2: 0 0% 7%;
-  --surface-3: 0 0% 9%;
-
-  --text-1: 0 0% 96%;
-  --text-2: 0 0% 78%;
-  --text-3: 0 0% 62%;
-
-  --stroke-soft: 0 0% 12%;
-  --stroke-strong: 0 0% 18%;
-
-  --success: 145 63% 42%;
-  --success-foreground: 0 0% 98%;
-  --chart-1: 0 0% 96%;
-  --chart-2: 0 0% 78%;
-  --chart-3: 0 0% 62%;
-  --chart-4: 0 0% 44%;
-  --chart-5: 0 0% 30%;
-
-  --shadow-sm: 0 1px 0 hsl(var(--border) / 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 1px 0 hsl(var(--border) / 0.7), 0 18px 50px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 1px 0 hsl(var(--border) / 0.8), 0 24px 72px rgba(0, 0, 0, 0.65);
-}
 
 @layer base {
   * {
     border-color: hsl(var(--border));
   }
 
+  html,
+  body {
+    min-height: 100%;
+  }
+
   body {
     background: hsl(var(--background));
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -82,7 +28,12 @@
   h5,
   h6 {
     letter-spacing: -0.02em;
-    line-height: 1.15;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
@@ -91,18 +42,26 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .section-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-gap {
+    @apply py-16 lg:py-24;
+  }
+
   .bg-grid-soft {
     background-image:
-      linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
-    background-size: 28px 28px;
+      linear-gradient(to right, hsl(var(--border) / 0.35) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.35) 1px, transparent 1px);
+    background-size: 36px 36px;
   }
 
   .hero-glow {
     background:
-      radial-gradient(circle at 15% 15%, hsl(var(--foreground) / 0.08), transparent 38%),
-      radial-gradient(circle at 85% 20%, hsl(var(--foreground) / 0.05), transparent 30%),
-      radial-gradient(circle at 50% 100%, hsl(var(--foreground) / 0.04), transparent 42%);
+      radial-gradient(circle at 15% 16%, hsl(var(--primary) / 0.12), transparent 40%),
+      radial-gradient(circle at 86% 24%, hsl(var(--accent) / 0.12), transparent 32%),
+      linear-gradient(180deg, hsl(var(--bg-1) / 0.5), transparent 55%);
   }
 
   .card-pep {
@@ -111,7 +70,15 @@
 
   .card-pep:hover {
     transform: translateY(-2px);
-    border-color: hsl(var(--ring) / 0.6);
+    border-color: hsl(var(--ring) / 0.7);
     box-shadow: var(--shadow-md);
+  }
+
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .surface-2 {
+    background-color: hsl(var(--bg-2));
   }
 }

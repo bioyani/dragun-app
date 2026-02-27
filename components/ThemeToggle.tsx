@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
@@ -40,14 +41,16 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button
+    <Button
       onClick={toggle}
+      variant="secondary"
+      size="icon"
       aria-label={`Theme: ${theme}. Click to switch`}
-      className="flex items-center justify-center w-8 h-8 rounded-xl border border-base-content/5 bg-base-300/40 text-base-content/60 hover:text-base-content hover:bg-base-300/60 transition-all"
+      className="h-9 w-9"
     >
-      {theme === 'dark' && <Sun className="w-3.5 h-3.5" />}
-      {theme === 'light' && <Moon className="w-3.5 h-3.5" />}
-      {theme === 'system' && <Monitor className="w-3.5 h-3.5" />}
-    </button>
+      {theme === 'dark' && <Sun className="h-4 w-4" />}
+      {theme === 'light' && <Moon className="h-4 w-4" />}
+      {theme === 'system' && <Monitor className="h-4 w-4" />}
+    </Button>
   );
 }
