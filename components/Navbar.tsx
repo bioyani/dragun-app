@@ -63,7 +63,7 @@ export default function Navbar() {
         {/* Left */}
         <div className="flex items-center gap-3">
           <div className="dropdown lg:hidden">
-            <label tabIndex={0} className="btn btn-ghost btn-square btn-sm" aria-label="Open menu">
+            <label tabIndex={0} className="btn btn-ghost btn-square h-10 min-h-10" aria-label="Open menu">
               <Menu className="h-5 w-5" />
             </label>
             <ul tabIndex={0} className="menu dropdown-content z-20 mt-3 w-56 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl">
@@ -127,13 +127,13 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <Link href="/dashboard" className="btn btn-ghost text-sm font-semibold">{t('dashboard')}</Link>
+              <Link href="/dashboard" className="btn btn-sm btn-ghost h-10 min-h-10 px-4 text-sm font-semibold">{t('dashboard')}</Link>
               <button
                 onClick={async () => {
                   await signOut();
                   window.location.href = '/';
                 }}
-                className="btn btn-primary rounded-full px-5"
+                className="btn btn-sm btn-primary h-10 min-h-10 rounded-full px-5"
                 type="button"
               >
                 {t('signOut')}
@@ -141,8 +141,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/#demo" className="btn btn-ghost hidden sm:inline-flex text-sm text-base-content/55">{t('watchDemo')}</Link>
-              <Link href="/login" className="btn btn-primary rounded-full gap-1.5 px-5">
+              <Link href="/#demo" className="btn btn-sm btn-ghost h-10 min-h-10 hidden sm:inline-flex text-sm text-base-content/55">{t('watchDemo')}</Link>
+              <Link href="/login" className="btn btn-sm btn-primary h-10 min-h-10 rounded-full gap-1.5 px-5">
                 {t('startPilot')}
                 <ArrowRight className="h-4 w-4" />
               </Link>
