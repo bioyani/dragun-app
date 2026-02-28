@@ -41,7 +41,7 @@ export function createTwilioSmsProvider(): SmsProvider {
           to: message.to,
           body: message.body,
           from: message.from ?? config.from!,
-          statusCallback: message.statusCallbackUrl,
+          statusCallback: message.statusCallbackUrl ?? config.statusCallbackUrl,
         });
 
         return {

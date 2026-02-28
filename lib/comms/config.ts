@@ -61,11 +61,17 @@ export function getTwilioConfig(): {
   accountSid?: string;
   authToken?: string;
   from?: string;
+  statusCallbackUrl?: string;
   enabled: boolean;
 } {
   const accountSid = clean(process.env.TWILIO_ACCOUNT_SID);
   const authToken = clean(process.env.TWILIO_AUTH_TOKEN);
   const from = clean(process.env.TWILIO_FROM);
+  const statusCallbackUrl =
+    clean(process.env.TWILIO_STATUS_CALLBACK_URL) ||
+    (process.env.NEXT_PUBLIC_URL
+      ? `${process.env.NEXT_PUBLIC_URL.replace(/\/$/, '')}/api/webhooks/twilio/status`
+      : undefined);
   const enabled = Boolean(accountSid && authToken && from);
 
   if (!enabled) {
@@ -75,7 +81,7 @@ export function getTwilioConfig(): {
     );
   }
 
-  return { accountSid, authToken, from, enabled };
+  return { accountSid, authToken, from, statusCallbackUrl, enabled };
 }
 
 export function isCommsTestTokenValid(requestToken: string | null): boolean {
@@ -96,5 +102,17 @@ export function buildNoopResultMeta(channel: CommsChannel): {
   return {
     id: `noop-${channel}-${Date.now()}`,
     provider: 'noop',
+  };
+}
+
+/** Server-only: whether each channel has a real provider configured (for dashboard status). */
+export function getCommsChannelStatus(): { email: boolean; sms: boolean } {
+  const resend = getResendConfig();
+  const twilio = getTwilioConfig();
+  const emailProvider = process.env.EMAIL_PROVIDER?.toLowerCase();
+  const smsProvider = process.env.SMS_PROVIDER?.toLowerCase();
+  return {
+    email: resend.enabled && emailProvider !== 'noop',
+    sms: twilio.enabled && smsProvider !== 'noop',
   };
 }

@@ -37,6 +37,10 @@ TWILIO_FROM=+1234567890
 
 If these are not set, SMS defaults to **noop** (no delivery). No Twilio account is required to run the app.
 
+### SMS status callbacks (delivery/failure)
+
+The app accepts Twilio status callbacks at `POST /api/webhooks/twilio/status`. When `NEXT_PUBLIC_URL` is set (or `TWILIO_STATUS_CALLBACK_URL`), outbound SMS include this URL so delivery/failure status is recorded in recovery actions. No extra config needed if `NEXT_PUBLIC_URL` is set.
+
 ---
 
 ## Test route

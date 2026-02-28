@@ -35,6 +35,7 @@ import DebtorFilters from '@/components/dashboard/DebtorFilters';
 import TopDebtors from '@/components/dashboard/TopDebtors';
 import RecoveryAnalytics from '@/components/dashboard/RecoveryAnalytics';
 import SuggestedCitations from '@/components/dashboard/SuggestedCitations';
+import CommsChannelsAlert from '@/components/dashboard/CommsChannelsAlert';
 import type { DebtorRow, RecoveryActionRow } from '@/components/dashboard/dashboard-types';
 import { getRagContext, RAG_QUERIES } from '@/lib/rag';
 
@@ -411,6 +412,7 @@ export default async function DashboardPage({
               </form>
             </div>
           )}
+          <CommsChannelsAlert locale={locale} />
           <PaywallBanner
             currentCount={paywall.currentCount}
             limit={paywall.limit}

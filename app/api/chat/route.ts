@@ -2,6 +2,7 @@ import { streamText, convertToModelMessages } from 'ai';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getChatModel } from '@/lib/ai-provider';
 import { getRagContext, RAG_QUERIES } from '@/lib/rag';
+import { verifyDebtorToken } from '@/lib/debtor-token';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -116,10 +117,16 @@ ${context || 'No specific contract terms available. Use the resolution options a
 
 export async function POST(req: Request) {
   try {
-    const { messages, debtorId } = await req.json();
+    const { messages, debtorId, token } = await req.json();
 
     if (!debtorId || typeof debtorId !== 'string') {
       return Response.json({ error: 'Invalid request' }, { status: 400 });
+    }
+
+    // Require valid debtor portal token so only intended debtor can use this channel
+    const verified = token ? verifyDebtorToken(String(token)) : null;
+    if (!verified || verified.debtorId !== debtorId) {
+      return Response.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     if (isRateLimited(debtorId)) {

@@ -33,7 +33,7 @@ export default function ChatClient({ debtorId, token }: Props) {
   const [chatError, setChatError] = useState<string | null>(null);
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/chat',
-    body: { debtorId },
+    body: { debtorId, token },
     onError: () => setChatError(t('agentUnavailable')),
   });
 
