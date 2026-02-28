@@ -273,17 +273,21 @@ export default async function DashboardPage({
     ? Math.round((totalRecovered / totalPortfolio) * 100)
     : 0;
 
+  const today = new Date();
+  const isToday = (d: Date) =>
+    d.getUTCFullYear() === today.getUTCFullYear() &&
+    d.getUTCMonth() === today.getUTCMonth() &&
+    d.getUTCDate() === today.getUTCDate();
+
   const contactedToday = debtors.filter((d) => {
     if (!d.last_contacted) return false;
-    const lc = new Date(d.last_contacted);
-    const now = new Date();
-    return (
-      lc.getUTCFullYear() === now.getUTCFullYear() &&
-      lc.getUTCMonth() === now.getUTCMonth() &&
-      lc.getUTCDate() === now.getUTCDate()
-    );
+    return isToday(new Date(d.last_contacted));
   }).length;
   const promises = debtors.filter((d) => d.status === 'promise_to_pay').length;
+
+  const paidToday = recoveryActions.filter(
+    (a) => a.status_after === 'paid' && isToday(new Date(a.created_at)),
+  ).length;
 
   const statusCounts: Record<string, number> = {};
   for (const d of debtors) {
@@ -320,6 +324,13 @@ export default async function DashboardPage({
       icon: CheckCircle2,
       trend: `min ${Math.round(merchant.settlement_floor * 100)}%`,
       sub: t('promiseToPay'),
+    },
+    {
+      label: t('paidToday'),
+      value: String(paidToday),
+      icon: BadgeDollarSign,
+      trend: t('today'),
+      sub: t('resolvedToday'),
     },
     {
       label: t('planLabel'),

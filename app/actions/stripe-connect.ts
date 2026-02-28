@@ -10,16 +10,16 @@ function sanitizeLocale(value: unknown) {
   return value === 'fr' ? 'fr' : 'en';
 }
 
-async function resolveBaseUrl() {
+async function resolveBaseUrl(): Promise<string> {
   const configured = process.env.NEXT_PUBLIC_URL;
   if (configured) {
     try {
       const parsed = new URL(configured);
-      if (parsed.protocol === 'https:' || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:' || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
         return parsed.origin;
       }
     } catch {
-      // Fall through to request headers.
+      // Fall through to fallbacks.
     }
   }
 
@@ -35,10 +35,17 @@ async function resolveBaseUrl() {
 
   const host = h.get('x-forwarded-host') ?? h.get('host');
   const proto = h.get('x-forwarded-proto') ?? 'https';
-  if (!host) {
-    throw new Error('Unable to resolve application base URL for Stripe onboarding redirects.');
+  if (host) {
+    return `${proto}://${host}`;
   }
-  return `${proto}://${host}`;
+
+  // Fallback for Vercel/serverless when headers are missing
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) {
+    return `https://${vercelUrl}`;
+  }
+
+  return 'https://www.dragun.app';
 }
 
 export async function createStripeConnectAccount(formData?: FormData) {
