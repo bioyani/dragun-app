@@ -51,6 +51,7 @@ export default function SettingsModal({ open, onClose, merchant }: Props) {
       onClose={onClose}
       titleId="settings-modal-title"
       className="max-w-md"
+      closeAriaLabel={t('closeModal')}
     >
       <div className="flex items-center justify-between border-b border-base-300/50 px-4 pt-4 pb-4 sm:px-6 sm:pt-6">
         <div className="flex items-center gap-3">
@@ -116,7 +117,7 @@ export default function SettingsModal({ open, onClose, merchant }: Props) {
             name="phone"
             defaultValue={merchant.phone ?? ''}
             className="input input-bordered input-sm w-full min-h-10"
-            placeholder="+1 234 567 8900"
+            placeholder={t('phonePlaceholder')}
           />
         </div>
 

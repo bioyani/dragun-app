@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import {
   ChevronRight,
@@ -17,6 +17,7 @@ import {
 
 export default function OnboardingPage() {
   const t = useTranslations('Onboarding');
+  const locale = useLocale();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ export default function OnboardingPage() {
     try {
       const { createStripeConnectAccount } = await import('@/app/actions/stripe-connect');
       const formData = new FormData();
-      formData.append('locale', 'en');
+      formData.append('locale', locale);
       await createStripeConnectAccount(formData);
     } catch {
       setLoading(false);

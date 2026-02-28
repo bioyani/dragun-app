@@ -12,6 +12,8 @@ interface Props {
   children: React.ReactNode;
   /** Optional class for the modal-box (e.g. max-w-lg). */
   className?: string;
+  /** Aria-label for the close button (for i18n). */
+  closeAriaLabel?: string;
 }
 
 const FOCUSABLE =
@@ -24,6 +26,7 @@ export default function AccessibleModal({
   descriptionId,
   children,
   className = '',
+  closeAriaLabel = 'Close modal',
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousActiveRef = useRef<Element | null>(null);
@@ -99,7 +102,7 @@ export default function AccessibleModal({
         {children}
       </div>
       <form method="dialog" className="modal-backdrop bg-base-100/80 backdrop-blur-sm" onSubmit={close}>
-        <button type="submit" className="cursor-default" aria-label="Close modal" />
+        <button type="submit" className="cursor-default" aria-label={closeAriaLabel} />
       </form>
     </dialog>
   );

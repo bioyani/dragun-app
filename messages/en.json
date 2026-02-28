@@ -10,7 +10,9 @@
     "signOut": "Sign Out",
     "security": "Security",
     "watchDemo": "Watch demo",
-    "startPilot": "Start pilot"
+    "startPilot": "Start pilot",
+    "openMenu": "Open menu",
+    "dragunHome": "Dragun home"
   },
   "Footer": {
     "tagline": "The standard for modern, empathetic debt recovery. Leveraging agentic AI to resolve balances with human-grade intuition.",
@@ -81,6 +83,7 @@
     "metaDesc": "Try the AI debt recovery agent in real time. See how Dragun negotiates with empathy and cites your contract."
   },
   "Home": {
+    "viewPaymentOptions": "View payment options",
     "badge": "Empathetic debt recovery, automated",
     "heroLine1": "Recover debt without burning relationships.",
     "heroLine2": "WITH DISCIPLINE AND CARE.",
@@ -389,6 +392,14 @@
     "commsChannelsNotConfigured": "Communications not configured",
     "commsChannelsHint": "Set up email (Resend) or SMS (Twilio) so outreach and reminders can be sent. See docs or Integrations.",
     "commsViewIntegrations": "View Integrations",
+    "updatesAndAlerts": "Updates and alerts",
+    "openAccountMenu": "Open account menu",
+    "closeModal": "Close modal",
+    "required": "required",
+    "phonePlaceholder": "+1 234 567 8900",
+    "debtorNamePlaceholder": "Jane Smith",
+    "debtorEmailPlaceholder": "jane@example.com",
+    "debtorAmountPlaceholder": "1500.00",
     "contactedToday": "Contacted Today",
     "queueTouched": "queue touched",
     "promises": "Promises",

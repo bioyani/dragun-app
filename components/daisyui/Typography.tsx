@@ -60,13 +60,15 @@ export function Text({ children, size = 'md', muted = false, as = 'p', className
 interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
   children: ReactNode;
   required?: boolean;
+  /** Aria-label for the required asterisk (for i18n, e.g. t('required')). */
+  requiredAriaLabel?: string;
 }
 
-export function Label({ children, required = false, className = '', ...props }: LabelProps) {
+export function Label({ children, required = false, requiredAriaLabel = 'required', className = '', ...props }: LabelProps) {
   return (
     <label className={`block text-sm font-medium text-base-content mb-2 ${className}`} {...props}>
       {children}
-      {required && <span className="text-error ml-1" aria-label="required">*</span>}
+      {required && <span className="text-error ml-1" aria-label={requiredAriaLabel}>*</span>}
     </label>
   );
 }

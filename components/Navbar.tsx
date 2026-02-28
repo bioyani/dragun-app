@@ -64,7 +64,7 @@ export default function Navbar() {
         {/* Left */}
         <div className="flex items-center gap-3">
           <div className="dropdown lg:hidden">
-            <label tabIndex={0} className="btn btn-ghost btn-square h-10 min-h-10" aria-label="Open menu">
+            <label tabIndex={0} className="btn btn-ghost btn-square h-10 min-h-10" aria-label={t('openMenu')}>
               <Menu className="h-5 w-5" />
             </label>
             <ul tabIndex={0} className="menu dropdown-content z-20 mt-3 w-56 min-w-[calc(100vw-2rem)] max-w-72 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl">
@@ -75,7 +75,7 @@ export default function Navbar() {
               ))}
             </ul>
           </div>
-          <Link href="/" className="tap-safe inline-flex items-center" aria-label="Dragun home">
+          <Link href="/" className="tap-safe inline-flex items-center" aria-label={t('dragunHome')}>
             <Logo className="h-8 w-auto sm:h-9" />
           </Link>
         </div>

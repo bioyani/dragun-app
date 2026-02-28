@@ -4,8 +4,13 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getMerchantId } from '@/lib/auth';
 import { sendSms } from '@/lib/comms';
 import { initialOutreachSms, followUpSms, paymentReminderSms } from '@/lib/comms/templates';
+import { normalizePhoneToE164 } from '@/lib/phone';
+import type { MerchantBasic } from '@/lib/merchant-types';
 import { revalidatePath } from 'next/cache';
 import * as Sentry from '@sentry/nextjs';
+
+const SMS_RATE_LIMIT_PER_DAY = 3;
+const IDEMPOTENCY_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 type SmsType = 'initial' | 'follow_up' | 'reminder';
 
@@ -28,8 +33,35 @@ export async function sendSmsOutreach(formData: FormData) {
     if (debtorError || !debtor) throw new Error('Debtor not found');
     if (!debtor.phone) throw new Error('No phone number on file for this debtor');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const merchant = debtor.merchant as any;
+    const smsOptOut = (debtor as { sms_opt_out?: boolean }).sms_opt_out;
+    if (smsOptOut) {
+      return { success: false, error: 'This recipient has opted out of SMS.' };
+    }
+
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: count24h } = await supabaseAdmin
+      .from('recovery_actions')
+      .select('id', { count: 'exact', head: true })
+      .eq('debtor_id', debtorId)
+      .in('action_type', ['sms_initial', 'sms_follow_up', 'sms_reminder'])
+      .gte('created_at', since24h);
+    if ((count24h ?? 0) >= SMS_RATE_LIMIT_PER_DAY) {
+      return { success: false, error: 'SMS rate limit reached for this debtor. Try again tomorrow.' };
+    }
+
+    const since1h = new Date(Date.now() - IDEMPOTENCY_WINDOW_MS).toISOString();
+    const { count: sameRecent } = await supabaseAdmin
+      .from('recovery_actions')
+      .select('id', { count: 'exact', head: true })
+      .eq('debtor_id', debtorId)
+      .eq('action_type', `sms_${smsType}`)
+      .gte('created_at', since1h);
+    if ((sameRecent ?? 0) >= 1) {
+      revalidatePath('/[locale]/dashboard', 'page');
+      return { success: true };
+    }
+
+    const merchant = (debtor.merchant ?? { name: 'Merchant' }) as MerchantBasic;
     const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://www.dragun.app';
     const { buildDebtorPortalUrl } = await import('@/lib/debtor-token');
     const chatUrl = buildDebtorPortalUrl(baseUrl, debtorId, 'chat');
@@ -57,8 +89,9 @@ export async function sendSmsOutreach(formData: FormData) {
         body = initialOutreachSms(params);
     }
 
+    const toE164 = normalizePhoneToE164(debtor.phone);
     const result = await sendSms({
-      to: debtor.phone,
+      to: toE164,
       body,
       metadata: {
         debtor_id: debtorId,
@@ -76,7 +109,7 @@ export async function sendSmsOutreach(formData: FormData) {
       merchant_id: merchantId,
       action_type: `sms_${smsType}`,
       status_after: debtor.status === 'pending' ? 'contacted' : debtor.status,
-      note: `SMS (${smsType}) sent to ${debtor.phone}`,
+      note: `SMS (${smsType}) sent to ${toE164}`,
     });
 
     if (debtor.status === 'pending') {

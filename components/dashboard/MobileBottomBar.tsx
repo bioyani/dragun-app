@@ -54,7 +54,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                     name="name"
                     required
                     type="text"
-                    placeholder="Jane Smith"
+                    placeholder={t('debtorNamePlaceholder')}
                     className="input input-bordered w-full pl-11 min-h-11"
                   />
                 </div>
@@ -68,7 +68,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                     name="email"
                     required
                     type="email"
-                    placeholder="jane@example.com"
+                    placeholder={t('debtorEmailPlaceholder')}
                     className="input input-bordered w-full pl-11 min-h-11"
                   />
                 </div>
@@ -85,7 +85,7 @@ export default function MobileBottomBar({ addDebtorAction }: Props) {
                       type="number"
                       min="0.01"
                       step="0.01"
-                      placeholder="1500.00"
+                      placeholder={t('debtorAmountPlaceholder')}
                       className="input input-bordered w-full pl-11 min-h-11"
                     />
                   </div>

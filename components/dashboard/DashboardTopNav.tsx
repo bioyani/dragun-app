@@ -70,7 +70,7 @@ export default function DashboardTopNav({
           className="group flex h-10 items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-2 outline-none transition-colors hover:bg-base-300"
           aria-haspopup="true"
           aria-expanded={open}
-          aria-label="Open account menu"
+          aria-label={t('openAccountMenu')}
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-base-300 bg-base-100 text-[10px] font-black tracking-tight">
             {initials}

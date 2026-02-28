@@ -5,6 +5,7 @@ import { getMerchantId } from '@/lib/auth';
 import { sendEmail } from '@/lib/comms';
 import { initialOutreachEmail, followUpEmail } from '@/lib/comms/templates';
 import { getRagSnippet, RAG_QUERIES } from '@/lib/rag';
+import type { MerchantBasic } from '@/lib/merchant-types';
 import { revalidatePath } from 'next/cache';
 import * as Sentry from '@sentry/nextjs';
 
@@ -25,8 +26,7 @@ export async function sendInitialOutreach(formData: FormData) {
 
     if (debtorError || !debtor) throw new Error('Debtor not found');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const merchant = debtor.merchant as any;
+    const merchant = (debtor.merchant ?? { name: 'Merchant' }) as MerchantBasic;
     const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://www.dragun.app';
     const { buildDebtorPortalUrl } = await import('@/lib/debtor-token');
     const chatUrl = buildDebtorPortalUrl(baseUrl, debtorId, 'chat');
@@ -109,8 +109,7 @@ export async function sendFollowUp(formData: FormData) {
 
     if (debtorError || !debtor) throw new Error('Debtor not found');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const merchant = debtor.merchant as any;
+    const merchant = (debtor.merchant ?? { name: 'Merchant' }) as MerchantBasic;
     const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://www.dragun.app';
     const { buildDebtorPortalUrl } = await import('@/lib/debtor-token');
     const chatUrl = buildDebtorPortalUrl(baseUrl, debtorId, 'chat');

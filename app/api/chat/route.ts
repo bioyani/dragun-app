@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getChatModel } from '@/lib/ai-provider';
 import { getRagContext, RAG_QUERIES } from '@/lib/rag';
 import { verifyDebtorToken } from '@/lib/debtor-token';
+import type { MerchantForChat } from '@/lib/merchant-types';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -174,8 +175,7 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Account not found' }, { status: 404 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const merchant = debtor.merchant as any;
+    const merchant = debtor.merchant as MerchantForChat;
 
     const { context } = await getRagContext(merchant.id, RAG_QUERIES.chat(lastMessageText), {
       matchCount: 5,

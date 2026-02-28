@@ -29,6 +29,7 @@ export default function KnowledgeModal({ open, onClose, contract }: Props) {
       onClose={onClose}
       titleId="knowledge-modal-title"
       className="max-w-md"
+      closeAriaLabel={t('closeModal')}
     >
       <div className="flex items-center justify-between gap-2 border-b border-base-300/50 px-4 pt-4 pb-4 sm:px-6 sm:pt-6">
         <div className="flex min-w-0 flex-1 items-center gap-3">

@@ -1,6 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 export default function PhoneMockup() {
+  const t = useTranslations('Home');
   return (
     <div className="phone-frame w-[280px] bg-[#faf9f7] animate-float">
       {/* Status bar */}
@@ -69,7 +72,7 @@ export default function PhoneMockup() {
 
       {/* Quick options */}
       <div className="px-3 pb-2 flex gap-1.5 overflow-hidden">
-        <span className="shrink-0 rounded-full border border-[#e0dbd4] bg-white px-2.5 py-1 text-[10px] text-[#888]">View payment options</span>
+        <span className="shrink-0 rounded-full border border-[#e0dbd4] bg-white px-2.5 py-1 text-[10px] text-[#888]">{t('viewPaymentOptions')}</span>
         <span className="shrink-0 rounded-full border border-[#e0dbd4] bg-white px-2.5 py-1 text-[10px] text-[#888]">I need more time</span>
       </div>
 

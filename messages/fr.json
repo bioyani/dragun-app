@@ -10,7 +10,9 @@
     "signOut": "Se déconnecter",
     "security": "Sécurité",
     "watchDemo": "Voir la démo",
-    "startPilot": "Démarrer un pilote"
+    "startPilot": "Démarrer un pilote",
+    "openMenu": "Ouvrir le menu",
+    "dragunHome": "Accueil Dragun"
   },
   "Footer": {
     "tagline": "La référence en matière de recouvrement de créances moderne et empathique. L'IA agentique au service du règlement avec une intuition humaine.",
@@ -81,6 +83,7 @@
     "metaDesc": "Essayez l'agent de recouvrement IA en temps réel. Voyez comment Dragun négocie avec empathie et cite votre contrat."
   },
   "Home": {
+    "viewPaymentOptions": "Voir les options de paiement",
     "badge": "Recouvrement empathique, automatisé",
     "heroLine1": "Récupérez vos créances sans briser la relation client.",
     "heroLine2": "AVEC RIGUEUR ET RESPECT.",
@@ -389,6 +392,14 @@
     "commsChannelsNotConfigured": "Communications non configurées",
     "commsChannelsHint": "Configurez l'email (Resend) ou le SMS (Twilio) pour envoyer les relances et rappels. Voir la doc ou Intégrations.",
     "commsViewIntegrations": "Voir les intégrations",
+    "updatesAndAlerts": "Mises à jour et alertes",
+    "openAccountMenu": "Ouvrir le menu compte",
+    "closeModal": "Fermer la fenêtre",
+    "required": "obligatoire",
+    "phonePlaceholder": "+1 234 567 8900",
+    "debtorNamePlaceholder": "Jane Smith",
+    "debtorEmailPlaceholder": "jane@example.com",
+    "debtorAmountPlaceholder": "1500.00",
     "contactedToday": "Contactés aujourd'hui",
     "queueTouched": "file traitée",
     "promises": "Promesses",
