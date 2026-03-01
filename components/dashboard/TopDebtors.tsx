@@ -1,12 +1,15 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import type { DebtorRow } from './dashboard-types';
-import { getRecoveryScore } from './DebtorTable';
+import { getRecoveryScore } from '@/lib/recovery-score';
 
 interface Props {
   debtors: DebtorRow[];
-  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
-export default function TopDebtors({ debtors, t }: Props) {
+export default function TopDebtors({ debtors }: Props) {
+  const t = useTranslations('Dashboard');
   return (
     <div className="card bg-base-200/50 border border-base-300/50 shadow-warm">
       <div className="card-body p-5">

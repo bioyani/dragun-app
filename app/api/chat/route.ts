@@ -236,8 +236,8 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Account not found' }, { status: 404 });
     }
 
-    const merchant = debtor.merchant as MerchantForChat | null;
-    if (!merchant?.id) {
+    const merchant = (debtor?.merchant ?? null) as MerchantForChat | null;
+    if (!merchant || typeof merchant !== 'object' || !merchant.id) {
       console.error('[/api/chat] Debtor has no merchant', { debtorId });
       return Response.json(
         { error: 'Account configuration missing. Contact support.' },
@@ -245,12 +245,27 @@ export async function POST(req: Request) {
       );
     }
 
-    const { context } = await getRagContext(merchant.id, RAG_QUERIES.chat(lastMessageText), {
-      matchCount: 5,
-      matchThreshold: 0.5,
-    });
+    const merchantId = String(merchant.id);
+    let context = '';
+    try {
+      const rag = await getRagContext(merchantId, RAG_QUERIES.chat(lastMessageText), {
+        matchCount: 5,
+        matchThreshold: 0.5,
+      });
+      context = rag?.context ?? '';
+    } catch (ragErr) {
+      console.warn('[/api/chat] RAG context failed', ragErr);
+    }
 
-    const systemPrompt = buildSystemPrompt(merchant, debtor, context);
+    const safeDebtor = {
+      name: debtor?.name ?? null,
+      email: debtor?.email ?? null,
+      currency: debtor?.currency ?? null,
+      total_debt: debtor?.total_debt ?? null,
+      status: debtor?.status ?? null,
+      days_overdue: debtor?.days_overdue ?? null,
+    };
+    const systemPrompt = buildSystemPrompt(merchant, safeDebtor, context);
 
     let model;
     try {
@@ -275,15 +290,18 @@ export async function POST(req: Request) {
           temperature: 0.3,
           maxOutputTokens: 400,
           onFinish: async ({ text }) => {
+            const did = debtorId;
+            const msg = lastMessageText?.trim() || '';
+            if (!did) return;
             await Promise.allSettled([
               supabaseAdmin.from('conversations').insert([
-                { debtor_id: debtorId, role: 'user', message: lastMessageText },
-                { debtor_id: debtorId, role: 'assistant', message: text },
+                { debtor_id: did, role: 'user', message: msg },
+                { debtor_id: did, role: 'assistant', message: typeof text === 'string' ? text : '' },
               ]),
               supabaseAdmin
                 .from('debtors')
                 .update({ last_contacted: new Date().toISOString() })
-                .eq('id', debtorId),
+                .eq('id', did),
             ]);
           },
         });

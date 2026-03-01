@@ -479,9 +479,8 @@ export default async function DashboardPage({
                 statusCounts={statusCounts}
                 recentActions={recentActions}
                 debtorNames={Object.fromEntries(debtors.map((d) => [d.id, d.name]))}
-                t={(key: string, values?: Record<string, string | number>) => t(key, values)}
               />
-              <TopDebtors debtors={prioritizedDebtors} t={(key: string, values?: Record<string, string | number>) => t(key, values)} />
+              <TopDebtors debtors={prioritizedDebtors} />
             </InsightsPanel>
           </aside>
         </div>

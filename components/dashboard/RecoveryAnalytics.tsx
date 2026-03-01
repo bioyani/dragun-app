@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { TrendingUp, Activity, PieChart } from 'lucide-react';
 import type { RecoveryActionRow } from './dashboard-types';
 
@@ -8,7 +11,6 @@ interface Props {
   statusCounts: Record<string, number>;
   recentActions: RecoveryActionRow[];
   debtorNames: Record<string, string>;
-  t: (key: string, values?: Record<string, string | number>) => string;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -47,8 +49,8 @@ export default function RecoveryAnalytics({
   statusCounts,
   recentActions,
   debtorNames,
-  t,
 }: Props) {
+  const t = useTranslations('Dashboard');
   const totalDebtors = Object.values(statusCounts).reduce((a, b) => a + b, 0);
 
   const orderedStatuses = ['paid', 'promise_to_pay', 'contacted', 'pending', 'no_answer', 'escalated'];
