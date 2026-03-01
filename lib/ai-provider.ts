@@ -11,28 +11,23 @@ const openrouter = createOpenAI({
 });
 
 /**
- * Free models via OpenRouter, ordered by quality for recovery conversations.
- * Uses OPENROUTER_MODEL env var if set, otherwise walks the free tier list.
- * All :free suffixed models have $0 cost on OpenRouter.
+ * OpenRouter free inference.
+ * - OPENROUTER_MODEL: use this model (e.g. deepseek/deepseek-chat-v3-0324:free).
+ * - Unset: use openrouter/free router (OpenRouter picks a free model; no hardcoded IDs).
  */
-const FREE_MODELS = [
-  'deepseek/deepseek-chat-v3-0324:free',
-  'google/gemini-2.5-flash-preview-05-20:free',
-  'meta-llama/llama-3.3-8b-instruct:free',
-  'qwen/qwen3-8b:free',
-] as const;
+const OPENROUTER_FREE_ROUTER = 'openrouter/free';
 
 export const getChatModel = () => {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is required. Get one free at openrouter.ai');
   }
 
-  const explicit = process.env.OPENROUTER_MODEL;
+  const explicit = process.env.OPENROUTER_MODEL?.trim();
   if (explicit) {
     return openrouter(explicit);
   }
 
-  return openrouter(FREE_MODELS[0]);
+  return openrouter(OPENROUTER_FREE_ROUTER);
 };
 
 /**

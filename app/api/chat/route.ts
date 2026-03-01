@@ -175,7 +175,14 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Account not found' }, { status: 404 });
     }
 
-    const merchant = debtor.merchant as MerchantForChat;
+    const merchant = debtor.merchant as MerchantForChat | null;
+    if (!merchant?.id) {
+      console.error('[/api/chat] Debtor has no merchant', { debtorId });
+      return Response.json(
+        { error: 'Account configuration missing. Contact support.' },
+        { status: 503 },
+      );
+    }
 
     const { context } = await getRagContext(merchant.id, RAG_QUERIES.chat(lastMessageText), {
       matchCount: 5,
@@ -216,7 +223,8 @@ export async function POST(req: Request) {
 
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error('[/api/chat]', error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error('[/api/chat]', err.message, err.stack);
     return Response.json({ error: 'Internal error' }, { status: 500 });
   }
 }
