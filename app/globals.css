@@ -78,6 +78,14 @@
   --font-family-serif: 'Georgia', 'Times New Roman', serif;
 }
 
+/* Logo fill: light/dark theme (Dragon mark) */
+[data-theme="dragun"] {
+  --logo-fill: #0cc0df;
+}
+[data-theme="dragun-dark"] {
+  --logo-fill: #22d3ee;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

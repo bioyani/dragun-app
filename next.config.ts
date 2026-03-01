@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
       { source: '/dashboard', destination: '/en/dashboard', permanent: false },
       {
         source: '/dashboard/chat/:path*',
-        destination: '/en/dashboard/chat/:path*',
+        destination: '/en/dashboard',
         permanent: false,
       },
       { source: '/login', destination: '/en/login', permanent: false },

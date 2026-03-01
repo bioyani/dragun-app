@@ -175,17 +175,34 @@ export async function POST(req: Request) {
         : '',
     }));
 
-    const modelMessages: ModelMessage[] = normalizedMessages.map((m) => {
-      const role = (m.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant';
-      const content = m.content;
-      const safeContent =
-        typeof content === 'string'
-          ? content
-          : Array.isArray(content)
-            ? content
-            : '';
-      return { role, content: safeContent };
-    });
+    // Coerce content to string or TextPart[] so the SDK never sees invalid shapes.
+    function toMessageContent(raw: unknown): string | Array<{ type: 'text'; text: string }> {
+      if (typeof raw === 'string' && raw.length > 0) return raw;
+      if (Array.isArray(raw)) {
+        const parts = raw
+          .map((p) => {
+            if (p && typeof p === 'object' && 'text' in (p as object))
+              return { type: 'text' as const, text: String((p as { text?: unknown }).text ?? '') };
+            if (typeof p === 'string') return { type: 'text' as const, text: p };
+            return null;
+          })
+          .filter((p): p is { type: 'text'; text: string } => p != null && p.text.length > 0);
+        if (parts.length > 0) return parts;
+      }
+      if (raw != null && typeof raw === 'object' && 'text' in (raw as object))
+        return [{ type: 'text' as const, text: String((raw as { text?: unknown }).text ?? '') }];
+      return '';
+    }
+
+    const modelMessages: ModelMessage[] = normalizedMessages
+      .map((m) => {
+        const role = (m.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant';
+        const content = toMessageContent(m.content);
+        const isEmpty =
+          content === '' || (Array.isArray(content) && content.every((p) => !p.text?.trim()));
+        return isEmpty ? null : ({ role, content } as ModelMessage);
+      })
+      .filter((m): m is ModelMessage => m != null);
 
     const lastNorm = normalizedMessages[normalizedMessages.length - 1];
     let lastMessageText = '';
@@ -201,6 +218,9 @@ export async function POST(req: Request) {
 
     if (!lastMessageText || lastMessageText.trim().length === 0) {
       return Response.json({ error: 'Empty message' }, { status: 400 });
+    }
+    if (modelMessages.length === 0) {
+      return Response.json({ error: 'No valid messages' }, { status: 400 });
     }
     if (lastMessageText.length > 5000) {
       return Response.json({ error: 'Message too long' }, { status: 400 });
@@ -282,7 +302,7 @@ export async function POST(req: Request) {
     throw lastError;
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
-    console.error('[/api/chat]', err.message, err.stack);
+    console.error('[/api/chat]', err.message, err.stack, { error: String(error), name: err.name });
 
     if (isQuotaOrRateLimitError(error)) {
       return Response.json(

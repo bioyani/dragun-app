@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ArrowUpRight, MessageCircle } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { getRecoveryScore } from '@/lib/recovery-score';
 import { getNextAction } from '@/lib/next-action';
 import type { DebtorRow, RecoveryActionRow } from './dashboard-types';
@@ -140,14 +140,6 @@ export default function DebtorTableWithBulk({
               <div className="flex items-center gap-2 pt-1 flex-wrap">
                 <DebtorActionForm debtor={d} handleRecoveryAction={handleRecoveryAction} />
                 <Link
-                  href={`/dashboard/chat/${d.id}`}
-                  className="btn btn-sm btn-ghost btn-outline gap-1 min-h-[44px] touch-manipulation"
-                  title={t('spectatorView')}
-                >
-                  <MessageCircle className="h-3.5 w-3.5" />
-                  {t('viewChat')}
-                </Link>
-                <Link
                   href={d.portalChatUrl ?? `/chat/${d.id}`}
                   className="btn btn-sm btn-primary btn-outline gap-1 ml-auto min-h-[44px] min-w-[44px] touch-manipulation"
                 >
@@ -230,14 +222,6 @@ export default function DebtorTableWithBulk({
                 <td className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <DebtorActionForm debtor={d} handleRecoveryAction={handleRecoveryAction} />
-                    <Link
-                      href={`/dashboard/chat/${d.id}`}
-                      className="btn btn-sm btn-ghost btn-outline gap-1 min-h-9"
-                      title={t('spectatorView')}
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      {t('viewChat')}
-                    </Link>
                     <Link
                       href={d.portalChatUrl ?? `/chat/${d.id}`}
                       className="btn btn-sm btn-primary btn-outline gap-1 min-h-9"
