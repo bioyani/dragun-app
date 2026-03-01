@@ -53,7 +53,10 @@ export default function PayClient({ debtorId, token, contractSnippet }: Props) {
     try {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-debtor-token': token,
+        },
         body: JSON.stringify({
           debtorId,
           merchantId: debtor.merchant_id,

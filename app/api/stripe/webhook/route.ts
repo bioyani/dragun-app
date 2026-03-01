@@ -98,7 +98,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     ? new Date(periodEnd * 1000).toISOString()
     : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from('merchants')
     .update({
       plan: isActive ? plan : 'free',
@@ -106,16 +106,26 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       debtor_limit: isActive ? getDebtorLimit(plan) : 3,
     })
     .eq('id', merchantId);
+
+  if (error) {
+    console.error('Error updating subscription:', error);
+    throw new Error('Database error updating subscription');
+  }
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const merchantId = subscription.metadata?.merchant_id;
   if (!merchantId) return;
 
-  await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from('merchants')
     .update({ plan: 'free', plan_active_until: null, debtor_limit: 3 })
     .eq('id', merchantId);
+
+  if (error) {
+    console.error('Error downgrading subscription:', error);
+    throw new Error('Database error downgrading subscription');
+  }
 }
 
 async function handleAccountUpdated(account: Stripe.Account) {
@@ -147,7 +157,7 @@ export async function POST(req: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    return new Response('Webhook signature invalid', { status: 400 });
   }
 
   try {

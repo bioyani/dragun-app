@@ -1,14 +1,29 @@
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { stripe } from '@/lib/stripe';
+import { verifyDebtorToken } from '@/lib/debtor-token';
 
 const PLATFORM_FEE_PERCENT = 0.05;
 
 export async function POST(req: Request) {
+  // Require a valid debtor token — prevents IDOR (any caller creating checkout for arbitrary debtor)
+  const debtorToken = req.headers.get('x-debtor-token');
+  if (!debtorToken) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const verified = verifyDebtorToken(debtorToken);
+  if (!verified) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { debtorId, amount, currency = 'usd' } = await req.json();
 
   if (!debtorId || typeof debtorId !== 'string') {
     return Response.json({ error: 'Invalid request' }, { status: 400 });
+  }
+  // Token must match the debtorId in the request body
+  if (verified.debtorId !== debtorId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
   if (typeof amount !== 'number' || amount <= 0 || !isFinite(amount)) {
     return Response.json({ error: 'Invalid amount' }, { status: 400 });
