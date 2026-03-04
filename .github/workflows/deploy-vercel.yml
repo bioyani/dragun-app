@@ -31,13 +31,13 @@ jobs:
 
       - name: Build artifacts
         env:
-          DEBTOR_PORTAL_SECRET: 01234567890123456789012345678901
-          ARCJET_KEY: ${{ secrets.ARCJET_KEY }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
-          STRIPE_PRICE_STARTER: ${{ secrets.STRIPE_PRICE_STARTER }}
-          STRIPE_PRICE_GROWTH: ${{ secrets.STRIPE_PRICE_GROWTH }}
-          STRIPE_PRICE_SCALE: ${{ secrets.STRIPE_PRICE_SCALE }}
+          DEBTOR_PORTAL_SECRET: '01234567890123456789012345678901'
+          ARCJET_KEY: aj_dummy
+          SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
+          NEXT_PUBLIC_SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
+          STRIPE_PRICE_STARTER: price_dummy_starter
+          STRIPE_PRICE_GROWTH: price_dummy_growth
+          STRIPE_PRICE_SCALE: price_dummy_scale
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to production
