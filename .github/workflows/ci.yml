@@ -44,6 +44,9 @@ jobs:
           SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
           NEXT_PUBLIC_SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
           DEBTOR_PORTAL_SECRET: 01234567890123456789012345678901
+          STRIPE_PRICE_STARTER: price_dummy_starter
+          STRIPE_PRICE_GROWTH: price_dummy_growth
+          STRIPE_PRICE_SCALE: price_dummy_scale
           AI_PROVIDER: local
           LOCAL_API_BASE_URL: http://127.0.0.1:11434/v1
         run: npm run build
