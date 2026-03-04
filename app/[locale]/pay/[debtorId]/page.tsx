@@ -36,11 +36,28 @@ export default async function PaymentPage({
     ? await getRagSnippet(debtorRow.merchant_id, RAG_QUERIES.payPage, 200)
     : '';
 
-  const { data: debtor } = await supabaseAdmin
+  const { data: debtorRowFull } = await supabaseAdmin
     .from('debtors')
     .select('id, merchant_id, name, currency, total_debt, merchant:merchants(name, settlement_floor)')
     .eq('id', debtorId)
     .single();
+
+  const merchantRow = Array.isArray(debtorRowFull?.merchant)
+    ? debtorRowFull?.merchant[0]
+    : debtorRowFull?.merchant;
+  const debtor = debtorRowFull && merchantRow
+    ? {
+        id: debtorRowFull.id,
+        merchant_id: debtorRowFull.merchant_id,
+        name: debtorRowFull.name,
+        currency: debtorRowFull.currency,
+        total_debt: debtorRowFull.total_debt,
+        merchant: {
+          name: merchantRow.name,
+          settlement_floor: merchantRow.settlement_floor,
+        },
+      }
+    : null;
 
   return (
     <PayClient

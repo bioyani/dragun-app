@@ -5,11 +5,22 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 export default async function SuccessPage({ params }: { params: Promise<{ debtorId: string }> }) {
   const { debtorId } = await params;
   const t = await getTranslations('Success');
-  const { data: debtor } = await supabaseAdmin
+  const { data: debtorRow } = await supabaseAdmin
     .from('debtors')
     .select('name, email, merchant:merchants(name)')
     .eq('id', debtorId)
     .single();
+
+  const merchantRow = Array.isArray(debtorRow?.merchant)
+    ? debtorRow?.merchant[0]
+    : debtorRow?.merchant;
+  const debtor = debtorRow && merchantRow
+    ? {
+        name: debtorRow.name,
+        email: debtorRow.email,
+        merchant: { name: merchantRow.name },
+      }
+    : null;
 
   if (!debtor) return <div className="p-10 text-center">{t('finalizing')}</div>;
 

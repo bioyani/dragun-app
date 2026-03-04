@@ -27,11 +27,27 @@ export default async function ChatPage({
   }
 
   // Fetch debtor + merchant server-side (bypasses RLS via service role key)
-  const { data: debtor } = await supabaseAdmin
+  const { data: debtorRow } = await supabaseAdmin
     .from('debtors')
     .select('id, name, currency, total_debt, merchant:merchants(name, strictness_level)')
     .eq('id', debtorId)
     .single();
+
+  const merchantRow = Array.isArray(debtorRow?.merchant)
+    ? debtorRow?.merchant[0]
+    : debtorRow?.merchant;
+  const debtor = debtorRow && merchantRow
+    ? {
+        id: debtorRow.id,
+        name: debtorRow.name,
+        currency: debtorRow.currency,
+        total_debt: debtorRow.total_debt,
+        merchant: {
+          name: merchantRow.name,
+          strictness_level: merchantRow.strictness_level,
+        },
+      }
+    : null;
 
   // Fetch existing conversation history server-side
   const { data: conversations } = await supabaseAdmin
