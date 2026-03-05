@@ -32,7 +32,10 @@ export default async function middleware(request: NextRequest) {
   if (aj && isProtectedPath(request.nextUrl.pathname)) {
     const decision = await aj.protect(request);
     if (decision.isDenied()) {
-      return new Response(null, { status: 403 });
+      console.warn('[arcjet] denied request on protected page, allowing to fail open', {
+        path: request.nextUrl.pathname,
+        reason: decision.reason,
+      });
     }
   }
 
