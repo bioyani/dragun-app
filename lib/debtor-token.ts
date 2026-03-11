@@ -1,8 +1,10 @@
 import crypto from 'crypto';
 
 const _secret = process.env.DEBTOR_PORTAL_SECRET;
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+
 if (!_secret || _secret.length < 32) {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && !isBuild) {
     throw new Error('DEBTOR_PORTAL_SECRET must be set (min 32 chars) in production');
   }
 }

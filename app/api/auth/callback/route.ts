@@ -10,7 +10,8 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   // if "next" is in search params, use it as the redirection URL after confirmation
   const next = searchParams.get('next') ?? DEFAULT_DASHBOARD;
-  const safeNext = next.startsWith('/') ? next : DEFAULT_DASHBOARD;
+  // Prevent open redirect: must be a relative path with no protocol-relative tricks
+  const safeNext = /^\/(?!\/)/.test(next) ? next : DEFAULT_DASHBOARD;
 
   if (code) {
     const supabase = await createClient();

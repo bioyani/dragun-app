@@ -2,8 +2,20 @@ import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { stripe } from '@/lib/stripe';
 import { verifyDebtorToken } from '@/lib/debtor-token';
+import arcjet, { fixedWindow } from '@arcjet/next';
 
 const PLATFORM_FEE_PERCENT = 0.05;
+
+const arcjetKey = process.env.ARCJET_KEY;
+const aj = arcjetKey
+  ? arcjet({
+      key: arcjetKey,
+      rules: [
+        // 10 checkout attempts per debtor token per 10 minutes
+        fixedWindow({ mode: 'LIVE', window: '10m', max: 10, characteristics: ['http.request.headers["x-debtor-token"]'] }),
+      ],
+    })
+  : null;
 
 export async function POST(req: Request) {
   // Require a valid debtor token — prevents IDOR (any caller creating checkout for arbitrary debtor)
@@ -14,6 +26,13 @@ export async function POST(req: Request) {
   const verified = verifyDebtorToken(debtorToken);
   if (!verified) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (aj) {
+    const decision = await aj.protect(req as Parameters<typeof aj.protect>[0]);
+    if (decision.isDenied()) {
+      return Response.json({ error: 'Too many requests' }, { status: 429 });
+    }
   }
 
   const { debtorId, amount, currency = 'usd', locale } = await req.json();

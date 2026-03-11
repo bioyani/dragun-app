@@ -14,6 +14,7 @@ const links = [
   { key: 'demo', href: '/demo' },
   { key: 'features', href: '/features' },
   { key: 'pricing', href: '/pricing' },
+  { key: 'docs', href: '/docs' },
   { key: 'faq', href: '/faq' },
   { key: 'security', href: '/legal' },
   { key: 'contact', href: '/contact' },

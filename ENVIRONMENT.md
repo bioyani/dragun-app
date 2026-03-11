@@ -17,6 +17,12 @@ This document outlines all environment variables required for the Dragun applica
 | `STRIPE_WEBHOOK_SECRET` | Private | Stripe webhook signing secret | `whsec_1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
 | `SENTRY_DSN` | Private | Sentry project DSN | `https://examplePublicKey@o0.ingest.sentry.io/0` |
 | `ARCJET_KEY` | Private | Arcjet API key | `aj_1234567890abcdef` |
+| `SMS_PROVIDER` | Private | SMS provider: `telnyx`, `twilio`, `sms-gateway`, `noop` | `telnyx` |
+| `TELNYX_API_KEY` | Private | Telnyx API key (from portal.telnyx.com → API Keys) | `KEY01...` |
+| `TELNYX_FROM` | Private | Telnyx sender phone number (E.164 format) | `+15551234567` |
+| `TELNYX_PUBLIC_KEY` | Private | Telnyx webhook public key (Ed25519, for signature verification) | `base64...` |
+| `OWNER_EMAIL` | Private | Owner email for admin access (`isOwner()` check) | `you@example.com` |
+| `DEBTOR_PORTAL_SECRET` | Private | HMAC key for debtor portal tokens (min 32 chars) | `randomly-generated-32-char-secret` |
 
 ## Local Development Setup
 

@@ -59,7 +59,7 @@ async function demoAI() {
   const debtor = debtors[0];
 
   // Use Groq LLaMA model (or any model you have configured) to craft a friendly outreach email.
-  const model = groq({ apiKey: groqApiKey });
+  const model = groq('llama-3.3-70b-versatile');
 
   const prompt = `You are a collections agent for Meziani AI. Write a concise, empathetic email to the debtor named ${debtor.name} (email: ${debtor.email}) who owes $${debtor.total_debt.toFixed(2)} USD. Their status is "${debtor.status}" and they are ${debtor.days_overdue} days overdue. Keep the tone professional but friendly, suggest a payment plan, and include a call‑to‑action with a link placeholder (https://pay.meziani.ai).`; 
 

@@ -4,7 +4,7 @@ import { addDebtor } from '../../actions/add-debtor';
 import { revalidatePath } from 'next/cache';
 import { Link, redirect } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
-import { getMerchantId } from '@/lib/auth';
+import { getMerchantId, isOwner } from '@/lib/auth';
 import { createStripeConnectAccount } from '@/app/actions/stripe-connect';
 import { createSubscriptionCheckout } from '@/app/actions/subscription';
 import { checkPaywall } from '@/lib/paywall';
@@ -37,6 +37,7 @@ import SuggestedCitations from '@/components/dashboard/SuggestedCitations';
 import CommsChannelsAlert from '@/components/dashboard/CommsChannelsAlert';
 import type { DebtorRow, RecoveryActionRow } from '@/components/dashboard/dashboard-types';
 import { getRagContext, RAG_QUERIES } from '@/lib/rag';
+import RootInspection from '@/components/dashboard/RootInspection';
 
 export default async function DashboardPage({
   searchParams,
@@ -49,6 +50,7 @@ export default async function DashboardPage({
   const merchantId = await getMerchantId();
   const search = await searchParams;
   const { locale } = await params;
+  const systemOwner = await isOwner();
   const stripeSuccess = search.stripe_success === 'true';
   const forceDashboard = search.force_dashboard === 'true';
 
@@ -419,6 +421,8 @@ export default async function DashboardPage({
 
         {/* Next best action (Goal-Gradient Effect) */}
         <FocusStrip nextDebtor={nextDebtor} actionableCount={actionableDebtors.length} />
+
+        {systemOwner && <RootInspection />}
 
         {/* Main content: table + sidebar */}
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">

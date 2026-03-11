@@ -13,3 +13,11 @@ export async function getMerchantId() {
 
   return user.id;
 }
+
+export async function isOwner() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const ownerEmail = process.env.OWNER_EMAIL;
+  if (!ownerEmail) return false;
+  return user?.email === ownerEmail;
+}
