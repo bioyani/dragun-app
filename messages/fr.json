@@ -489,7 +489,7 @@
     "limitReached": "Limite de débiteurs atteinte",
     "approachingLimit": "Limite bientôt atteinte",
     "limitReachedDesc": "Vous avez atteint {limit} débiteurs actifs sur le forfait {plan}. Passez à un forfait supérieur pour en ajouter davantage.",
-    "approachingLimitDesc": "{current} sur {limit} créneaux débiteurs utilisés. Passez au niveau supérieur avant d'atteindre la limite.",
+    "approachingLimitDesc": "{current} sur {limit} créneaux débiteurs utilisés. Passez au niveau supérieur avant d''atteindre la limite.",
     "upgradeToStarter": "Passer au forfait Démarrage",
     "fiftyDebtors": "50 débiteurs",
     "aiRecoveryAgent": "Agent IA de recouvrement",
