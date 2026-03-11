@@ -70,12 +70,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Start dev server (subprocess)
-        run: npm run dev &
-        shell: bash
-
-      - name: Wait for dev server
-        run: npx wait-on http://localhost:3000 --timeout 60000
-
+      # Playwright webServer config starts `npm run dev` as a subprocess automatically in CI
       - name: E2E tests
         run: npm run test:e2e
