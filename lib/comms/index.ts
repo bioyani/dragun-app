@@ -1,6 +1,8 @@
 import { getConfiguredEmailProvider, getConfiguredSmsProvider } from '@/lib/comms/config';
 import { createResendEmailProvider } from '@/lib/comms/providers/resend';
 import { createTwilioSmsProvider } from '@/lib/comms/providers/twilio';
+import { createTelnyxSmsProvider } from '@/lib/comms/providers/telnyx';
+import { createSmsGatewayProvider } from '@/lib/comms/providers/sms-gateway';
 import {
   CommsDispatchRequest,
   CommsFailure,
@@ -11,7 +13,7 @@ import {
   SmsProvider,
 } from '@/lib/comms/types';
 
-function fail(channel: 'email' | 'sms', provider: 'resend' | 'twilio' | 'noop', code: string, message: string): CommsFailure {
+function fail(channel: 'email' | 'sms', provider: 'resend' | 'twilio' | 'telnyx' | 'sms-gateway' | 'noop', code: string, message: string): CommsFailure {
   return {
     ok: false,
     channel,
@@ -53,6 +55,14 @@ function resolveSmsProvider(): SmsProvider | undefined {
 
   if (configured === 'twilio') {
     return createTwilioSmsProvider();
+  }
+
+  if (configured === 'telnyx') {
+    return createTelnyxSmsProvider();
+  }
+
+  if (configured === 'sms-gateway') {
+    return createSmsGatewayProvider();
   }
 
   if (configured === 'noop') {

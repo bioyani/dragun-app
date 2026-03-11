@@ -22,8 +22,8 @@ function readProvider(raw: string | undefined, fallback: CommsProviderName): Com
     return fallback;
   }
 
-  if (value === 'resend' || value === 'twilio' || value === 'noop') {
-    return value;
+  if (value === 'resend' || value === 'twilio' || value === 'telnyx' || value === 'sms-gateway' || value === 'noop') {
+    return value as CommsProviderName;
   }
 
   warnOnce(`invalid-provider:${value}`, `Unsupported provider "${value}". Falling back to ${fallback}.`);
@@ -77,11 +77,36 @@ export function getTwilioConfig(): {
   if (!enabled) {
     warnOnce(
       'twilio:missing',
-      'TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and/or TWILIO_FROM missing. SMS delivery is running in noop mode.'
+      'TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and/or TWILIO_FROM missing.'
     );
   }
 
   return { accountSid, authToken, from, statusCallbackUrl, enabled };
+}
+
+export function getTelnyxConfig(): {
+  apiKey?: string;
+  from?: string;
+  statusCallbackUrl?: string;
+  enabled: boolean;
+} {
+  const apiKey = clean(process.env.TELNYX_API_KEY);
+  const from = clean(process.env.TELNYX_FROM);
+  const statusCallbackUrl =
+    clean(process.env.TELNYX_STATUS_CALLBACK_URL) ||
+    (process.env.NEXT_PUBLIC_URL
+      ? `${process.env.NEXT_PUBLIC_URL.replace(/\/$/, '')}/api/webhooks/telnyx/status`
+      : undefined);
+  const enabled = Boolean(apiKey && from);
+
+  if (!enabled) {
+    warnOnce(
+      'telnyx:missing',
+      'TELNYX_API_KEY and/or TELNYX_FROM missing.'
+    );
+  }
+
+  return { apiKey, from, statusCallbackUrl, enabled };
 }
 
 export function isCommsTestTokenValid(requestToken: string | null): boolean {
@@ -109,10 +134,11 @@ export function buildNoopResultMeta(channel: CommsChannel): {
 export function getCommsChannelStatus(): { email: boolean; sms: boolean } {
   const resend = getResendConfig();
   const twilio = getTwilioConfig();
+  const telnyx = getTelnyxConfig();
   const emailProvider = process.env.EMAIL_PROVIDER?.toLowerCase();
   const smsProvider = process.env.SMS_PROVIDER?.toLowerCase();
   return {
     email: resend.enabled && emailProvider !== 'noop',
-    sms: twilio.enabled && smsProvider !== 'noop',
+    sms: (twilio.enabled || telnyx.enabled) && smsProvider !== 'noop',
   };
 }

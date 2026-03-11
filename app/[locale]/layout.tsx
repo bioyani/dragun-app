@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Inter, Space_Grotesk } from 'next/font/google';
-import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
@@ -52,7 +52,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
+  if (!routing.locales.includes(locale as any)) notFound();
 
   const messages = await getMessages();
 

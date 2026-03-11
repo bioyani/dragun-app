@@ -1,6 +1,6 @@
 export type CommsChannel = 'email' | 'sms';
 
-export type CommsProviderName = 'resend' | 'twilio' | 'noop';
+export type CommsProviderName = 'resend' | 'twilio' | 'telnyx' | 'sms-gateway' | 'noop';
 
 export type CommsTags = string[];
 

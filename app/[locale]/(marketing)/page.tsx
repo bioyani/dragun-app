@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
 export const metadata: Metadata = {
@@ -46,8 +46,8 @@ const jsonLd = {
   },
 };
 
-export default function LandingPage() {
-  const t = useTranslations('Home');
+export default async function LandingPage() {
+  const t = await getTranslations('Home');
 
   return (
     <main>

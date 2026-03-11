@@ -22,6 +22,15 @@ export default function Footer() {
                 </span>
               ))}
             </div>
+            <div className="pt-2 overflow-hidden rounded-lg">
+              <iframe
+                width="380"
+                height="82"
+                style={{ border: 0 }}
+                src="https://climate.stripe.com/badge/gikABs?theme=dark&size=large&locale=en-US"
+                title="Stripe Climate Badge"
+              />
+            </div>
           </div>
 
           <div className="lg:col-span-2">

@@ -157,31 +157,40 @@ export default async function DashboardPage({
   const isOnboardingComplete = !!merchant.stripe_onboarding_complete;
   const subscriptionSuccess = search.subscription_success === 'true';
 
-  // --- Data fetching ---
-  const paywall = await checkPaywall(merchantId!);
+  // --- Data fetching in parallel ---
+  const [
+    paywall,
+    { data: contract },
+    { data: debtorsData },
+    { data: recoveryActionsData },
+    { chunks: suggestedCitations }
+  ] = await Promise.all([
+    checkPaywall(merchantId!),
+    supabaseAdmin
+      .from('contracts')
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single(),
+    supabaseAdmin
+      .from('debtors')
+      .select('*')
+      .eq('merchant_id', merchantId),
+    supabaseAdmin
+      .from('recovery_actions')
+      .select('*')
+      .eq('merchant_id', merchantId)
+      .order('created_at', { ascending: false })
+      .limit(250),
+    getRagContext(merchantId!, RAG_QUERIES.dashboardSuggest, {
+      matchCount: 3,
+      matchThreshold: 0.45,
+    }),
+  ]);
 
-  const { data: contract } = await supabaseAdmin
-    .from('contracts')
-    .select('*')
-    .eq('merchant_id', merchantId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  const { data: debtorsData } = await supabaseAdmin
-    .from('debtors')
-    .select('*')
-    .eq('merchant_id', merchantId);
   const debtors: DebtorRow[] = (debtorsData ?? []) as DebtorRow[];
-
-  const { data: recoveryActionsData } = await supabaseAdmin
-    .from('recovery_actions')
-    .select('*')
-    .eq('merchant_id', merchantId)
-    .order('created_at', { ascending: false })
-    .limit(250);
-  const recoveryActions: RecoveryActionRow[] =
-    (recoveryActionsData ?? []) as RecoveryActionRow[];
+  const recoveryActions: RecoveryActionRow[] = (recoveryActionsData ?? []) as RecoveryActionRow[];
 
   // --- Server actions ---
   async function handleAddDebtor(formData: FormData) {
@@ -281,10 +290,7 @@ export default async function DashboardPage({
 
   const recentActions = recoveryActions.slice(0, 10);
 
-  const { chunks: suggestedCitations } = await getRagContext(merchantId!, RAG_QUERIES.dashboardSuggest, {
-    matchCount: 3,
-    matchThreshold: 0.45,
-  });
+
 
   const summaryPrimary = [
     {
