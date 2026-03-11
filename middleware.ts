@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 import arcjet, { detectBot, shield } from '@arcjet/next';
 
@@ -28,6 +28,14 @@ function isProtectedPath(pathname: string) {
   return PROTECTED_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
 }
 
+function applySecurityHeaders(response: Response) {
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  return response;
+}
+
 export default async function middleware(request: NextRequest) {
   if (aj && isProtectedPath(request.nextUrl.pathname)) {
     const decision = await aj.protect(request);
@@ -44,6 +52,23 @@ export default async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
+  const normalizedPath = normalizePath(request.nextUrl.pathname);
+  if (normalizedPath.startsWith('/auth/')) {
+    if (request.nextUrl.pathname !== normalizedPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = normalizedPath;
+      const response = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        response.cookies.set(cookie.name, cookie.value, {
+          ...cookie,
+        });
+      });
+      return applySecurityHeaders(response);
+    }
+
+    return applySecurityHeaders(supabaseResponse);
+  }
+
   const response = await intlMiddleware(request);
 
   supabaseResponse.cookies.getAll().forEach((cookie) => {
@@ -52,12 +77,7 @@ export default async function middleware(request: NextRequest) {
     });
   });
 
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {
