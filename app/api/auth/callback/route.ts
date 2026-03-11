@@ -1,5 +1,4 @@
 import { createRouteClient } from '@/lib/supabase/route';
-import { supabaseAdmin } from '@/lib/supabase-admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from '@/i18n/routing';
 
@@ -24,7 +23,7 @@ export async function GET(request: NextRequest) {
     
     if (!error && user) {
       // Check if merchant record exists by ID
-      let { data: merchant } = await supabaseAdmin
+      let { data: merchant } = await supabase
         .from('merchants')
         .select('id')
         .eq('id', user.id)
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest) {
 
       if (!merchant) {
         // Fallback: Check if merchant record exists by email
-        const { data: existingByEmail } = await supabaseAdmin
+        const { data: existingByEmail } = await supabase
           .from('merchants')
           .select('id')
           .eq('email', user.email!)
@@ -40,14 +39,14 @@ export async function GET(request: NextRequest) {
 
         if (existingByEmail) {
           // Update the ID to match the new auth ID
-          await supabaseAdmin
+          await supabase
             .from('merchants')
             .update({ id: user.id })
             .eq('email', user.email!);
           merchant = { id: user.id };
         } else {
           // Create new record
-          const { error: merchantError } = await supabaseAdmin
+          const { error: merchantError } = await supabase
             .from('merchants')
             .insert({
               id: user.id,
@@ -58,7 +57,7 @@ export async function GET(request: NextRequest) {
           if (!merchantError) {
             merchant = { id: user.id };
             // Seed a sample debtor for the new merchant
-            await supabaseAdmin
+            await supabase
               .from('debtors')
               .insert({
                 merchant_id: user.id,
@@ -74,7 +73,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      const { data: merchantData } = await supabaseAdmin
+      const { data: merchantData } = await supabase
         .from('merchants')
         .select('onboarding_complete, onboarding_completed')
         .eq('id', user.id)
