@@ -1,6 +1,7 @@
 'use client';
 
 import { useChat, UIMessage } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -44,10 +45,13 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [chatError, setChatError] = useState<string | null>(null);
-  
-  const { messages, setMessages, input, handleInputChange, handleSubmit, status } = useChat({
-    api: '/api/chat',
-    body: { debtorId, token },
+  const [input, setInput] = useState('');
+
+  const { messages, setMessages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      body: { debtorId, token },
+    }),
     onError: () => setChatError(t('agentUnavailable')),
   });
 
@@ -120,6 +124,23 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
 
   const payHref = `/pay/${debtorId}?token=${encodeURIComponent(token)}`;
   const actionChips = [t('chipPay'), t('chipFriday'), t('chipDispute'), t('chipSettlement')];
+
+  async function submitMessage(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed || isLoading) return;
+    setChatError(null);
+    setInput('');
+    await sendMessage({ text: trimmed });
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void submitMessage(input);
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setInput(event.target.value);
+  }
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-base-100 text-base-content w-full md:max-w-lg mx-auto border-x border-base-300/50 shadow-elevated relative">
@@ -213,11 +234,7 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
           <button
             key={chip}
             className="btn btn-sm btn-ghost rounded-full border border-base-300/50 whitespace-nowrap text-xs font-semibold hover:btn-primary hover:border-primary min-h-9"
-            onClick={() => {
-              const e = { target: { value: chip } } as React.ChangeEvent<HTMLInputElement>;
-              handleInputChange(e);
-              setTimeout(() => document.querySelector<HTMLFormElement>('form')?.requestSubmit(), 50);
-            }}
+            onClick={() => void submitMessage(chip)}
           >
             {chip}
           </button>
