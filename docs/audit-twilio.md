@@ -91,7 +91,7 @@ All include a “legitimate” resolution portal link. No explicit STOP/HELP wor
 
 ## 7. Test API (`app/api/comms/test/route.ts`)
 
-- **Auth:** `COMMS_TEST_TOKEN` via header `comms-test-token`, `x-comms-test-token`, or `Authorization: Bearer <token>`.
+- **Auth:** `COMMS_TEST_TOKEN` via header `Authorization: Bearer <token>`.
 - **Body:** `{ channel: "email" | "sms", payload: {...} }`. For SMS, payload should match `SmsMessage` (to, body, from optional).
 - **Response:** Full `CommsResult` (ok, provider, id or error); 200 on success, 502 on failure.
 - **Security:** No token = 401; invalid JSON = 400.

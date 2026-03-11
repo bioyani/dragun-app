@@ -65,4 +65,4 @@ When a send is blocked, the UI receives the reason (e.g. â€œPlease wait until â€
 
 ## Test route
 
-With `COMMS_TEST_TOKEN` set in env, you can POST to `/api/comms/test` with header `comms-test-token: <value>` and a JSON body to trigger a test email/SMS (see `lib/comms/types.ts` for `CommsDispatchRequest`).
+With `COMMS_TEST_TOKEN` set in env, you can POST to `/api/comms/test` with header `Authorization: Bearer <value>` and a JSON body to trigger a test email/SMS (see `lib/comms/types.ts` for `CommsDispatchRequest`).
