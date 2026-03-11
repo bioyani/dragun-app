@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight, CreditCard } from 'lucide-react';
 
@@ -10,17 +10,16 @@ interface Props {
 
 export default function PendingSubscription({ subscribeAction }: Props) {
   const t = useTranslations('Dashboard');
-  const [pendingPlan, setPendingPlan] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
+  const [pendingPlan, setPendingPlan] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
     const plan = localStorage.getItem('pending_plan');
     if (plan && ['starter', 'growth', 'scale'].includes(plan)) {
-      setPendingPlan(plan);
       localStorage.removeItem('pending_plan');
+      return plan;
     }
-  }, []);
+    return null;
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   if (!pendingPlan) return null;
 

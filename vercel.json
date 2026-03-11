@@ -3,6 +3,15 @@
   "buildCommand": "next build",
   "installCommand": "npm install",
   "functions": {
+    "app/api/cron/**/route.ts": {
+      "maxDuration": 120
+    },
+    "app/api/stripe/webhook/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/webhooks/**/route.ts": {
+      "maxDuration": 60
+    },
     "app/api/**/*.ts": {
       "maxDuration": 30
     }

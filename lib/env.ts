@@ -46,8 +46,9 @@ export function validateEnv() {
       provider === 'local'
         ? 'AI_PROVIDER=local requires a local server (e.g. Ollama). Set LOCAL_API_BASE_URL if not http://127.0.0.1:11434/v1.'
         : 'No AI provider configured. Set GROQ_API_KEY or use AI_PROVIDER=local with a local server.';
-    if (isProduction) throw new Error(msg);
-    console.warn(`[env] ${msg}`);
+    console.warn(
+      `[env] ${msg} AI features will be stubbed (e.g. /api/chat unavailable) but the rest of the app will remain operational.`,
+    );
   }
 
   if (!isProduction) {

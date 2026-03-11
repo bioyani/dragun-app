@@ -6,10 +6,23 @@ export const maxDuration = 60;
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
-export async function GET(req: Request) {
+function isVercelCron(req: Request): boolean {
+  const v = req.headers.get('x-vercel-cron');
+  if (v === '1' || v === 'true') return true;
+  const ua = (req.headers.get('user-agent') ?? '').toLowerCase();
+  return ua.includes('vercel-cron');
+}
+
+function isAuthorized(req: Request): boolean {
+  if (isVercelCron(req)) return true;
+
   const authHeader = req.headers.get('authorization');
   const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!CRON_SECRET || !bearer || bearer !== CRON_SECRET) {
+  return Boolean(CRON_SECRET && bearer && bearer === CRON_SECRET);
+}
+
+export async function GET(req: Request) {
+  if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -60,7 +60,7 @@ export default function PayClient({ debtorId, token, initialDebtor, contractSnip
         setPaying(false);
         return;
       }
-      window.location.href = data.url;
+      window.location.assign(data.url);
     } catch {
       setPayError(t('networkError'));
       setPaying(false);

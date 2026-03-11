@@ -1,6 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase/server';
-import { updateMerchantSettings } from '../../actions/merchant-settings';
 import { addDebtor } from '../../actions/add-debtor';
 import { revalidatePath } from 'next/cache';
 import { Link, redirect } from '@/i18n/navigation';
@@ -200,25 +199,6 @@ export default async function DashboardPage({
   async function handleSubscribe(formData: FormData) {
     'use server';
     await createSubscriptionCheckout(formData);
-  }
-
-  async function handleUpdateSettings(formData: FormData) {
-    'use server';
-    const name = formData.get('name') as string;
-    const strictness = parseInt(formData.get('strictness') as string);
-    const settlement = parseFloat(formData.get('settlement') as string) / 100;
-    const retention = parseInt(formData.get('data_retention_days') as string) || 0;
-    const currency_preference = (formData.get('currency_preference') as string) || undefined;
-    const phone = (formData.get('phone') as string)?.trim() || undefined;
-    await updateMerchantSettings({
-      name,
-      strictness_level: strictness,
-      settlement_floor: settlement,
-      data_retention_days: retention,
-      currency_preference,
-      phone,
-    });
-    revalidatePath('/dashboard');
   }
 
   async function handleRecoveryAction(formData: FormData) {

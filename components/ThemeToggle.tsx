@@ -19,12 +19,14 @@ function applyTheme(value: Theme) {
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'system';
+    const saved = localStorage.getItem('theme') as Theme | null;
+    return saved || 'system';
+  });
 
   useEffect(() => {
-    const saved = (localStorage.getItem('theme') as Theme) || 'system';
-    setTheme(saved);
-    applyTheme(saved);
+    applyTheme(theme);
 
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemChange = () => {
@@ -33,7 +35,7 @@ export default function ThemeToggle() {
     };
     media.addEventListener('change', handleSystemChange);
     return () => media.removeEventListener('change', handleSystemChange);
-  }, []);
+  }, [theme]);
 
   const cycle = () => {
     const order: Theme[] = ['system', 'dark', 'light'];

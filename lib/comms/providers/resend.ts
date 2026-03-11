@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import type { CreateEmailOptions } from 'resend';
 import { buildNoopResultMeta, getResendConfig } from '@/lib/comms/config';
 import { CommsFailure, CommsResult, EmailMessage, EmailProvider } from '@/lib/comms/types';
 
@@ -53,7 +54,14 @@ export function createResendEmailProvider(): EmailProvider {
       const client = new Resend(config.apiKey);
 
       try {
-        const emailParams: any = {
+        const emailParams: {
+          to: string[];
+          from: string;
+          subject: string;
+          tags?: Array<{ name: string; value: string }>;
+          html?: string;
+          text?: string;
+        } = {
           to: asArray(message.to),
           from: message.from ?? config.from!,
           subject: message.subject,
@@ -67,7 +75,7 @@ export function createResendEmailProvider(): EmailProvider {
           emailParams.text = message.text;
         }
 
-        const response = await client.emails.send(emailParams);
+        const response = await client.emails.send(emailParams as unknown as CreateEmailOptions);
 
         if (response.error) {
           return fail(response.error.name ?? 'RESEND_ERROR', response.error.message);
