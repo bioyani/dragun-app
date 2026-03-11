@@ -144,11 +144,24 @@ export async function importDebtors(
   let outreachSent = 0;
   if (autoSend && inserted?.length) {
     const { sendInitialOutreach } = await import('@/app/actions/send-outreach');
-    for (const row of inserted) {
-      const fd = new FormData();
-      fd.set('debtor_id', row.id);
-      const res = await sendInitialOutreach(fd);
-      if (res.success) outreachSent++;
+    const CONCURRENCY_LIMIT = 5;
+
+    for (let i = 0; i < inserted.length; i += CONCURRENCY_LIMIT) {
+      const chunk = inserted.slice(i, i + CONCURRENCY_LIMIT);
+
+      const results = await Promise.allSettled(
+        chunk.map((row) => {
+          const fd = new FormData();
+          fd.set('debtor_id', row.id);
+          return sendInitialOutreach(fd);
+        })
+      );
+
+      for (const res of results) {
+        if (res.status === 'fulfilled' && res.value.success) {
+          outreachSent++;
+        }
+      }
     }
   }
 
