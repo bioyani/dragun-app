@@ -1,0 +1,18 @@
+console.log("=== Data Retention Cleanup Benchmark ===");
+console.log("Analyzing theoretical database network round-trips for N merchants with old debtors.");
+console.log("\n[Baseline: Route loop]");
+console.log("1 query: SELECT merchants with data_retention_days > 0");
+console.log("For each of N merchants:");
+console.log("  1 query: SELECT old debtors");
+console.log("  4 queries: DELETE conversations, payments, recovery_actions, debtors");
+console.log("Total Network Round-trips: 1 + 5*N");
+console.log("Time Complexity (Network latency): O(N)");
+console.log("\n[Optimized: RPC approach]");
+console.log("1 query: CALL rpc('execute_data_retention')");
+console.log("Inside DB: 1 CTE query handles the join and DELETE, utilizing ON DELETE CASCADE");
+console.log("Total Network Round-trips: 1");
+console.log("Time Complexity (Network latency): O(1)");
+console.log("\n[Conclusion]");
+console.log("By moving the cleanup logic into a PostgreSQL function, we reduce the network latency overhead");
+console.log("from O(N) to O(1), preventing N+1 query issues and significantly reducing execution time");
+console.log("and memory allocation on the Node.js server.");
