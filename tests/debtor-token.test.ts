@@ -4,7 +4,7 @@ import crypto from 'crypto';
 console.log('🧪 Testing debtor-token...');
 
 let allPassed = true;
-function assert(condition: any, message: string) {
+function assert(condition: unknown, message: string) {
   if (condition) {
     console.log(`✅ ${message} passed`);
   } else {
