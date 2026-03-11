@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextMiddleware } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 import arcjet, { detectBot, shield } from '@arcjet/next';
 
@@ -36,7 +36,7 @@ function applySecurityHeaders(response: Response) {
   return response;
 }
 
-export default async function middleware(request: NextRequest) {
+const middleware: NextMiddleware = async (request) => {
   if (aj && isProtectedPath(request.nextUrl.pathname)) {
     const decision = await aj.protect(request);
     if (decision.isDenied()) {
@@ -83,3 +83,5 @@ export default async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/((?!api|_next|.*\\..*).*)'],
 };
+
+export default middleware;
