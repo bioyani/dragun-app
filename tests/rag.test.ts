@@ -12,7 +12,7 @@ mock.module("../lib/ai-provider", () => ({
 
 // Mock supabase-admin to control getMerchantContractId and supabaseAdmin.rpc
 mock.module("../lib/supabase-admin", () => {
-  const mockRpc = mock(async (rpcName: string, params: any) => {
+  const mockRpc = mock(async (rpcName: string, params: { query_embedding?: number[] } | Record<string, unknown>) => {
     if (params.query_embedding && params.query_embedding.length > 0) {
       if (params.query_embedding[0] === 0.999) {
          return { data: null, error: new Error("RPC Error") };
