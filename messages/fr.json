@@ -605,7 +605,7 @@
     "signIn": "Se connecter",
     "signUp": "Créer un compte",
     "loginHeadline": "Bon retour",
-    "loginSubline": "Accédez à votre tableau de bord de recouvrement.",
+    "loginSubline": "Accédez à votre portail Meziani IA Labs.",
     "registerHeadline": "Créer un compte",
     "registerSubline": "Configurez votre espace de recouvrement en quelques minutes. Aucune carte requise.",
     "errorTitle": "Une erreur s'est produite",
@@ -678,5 +678,17 @@
     "securedBy": "Sécurisé par Stripe · Chiffrement 256 bits",
     "onBehalfOf": "Cette communication est au nom de {merchant}.",
     "poweredBy": "Propulsé par Dragun.app"
+  },
+  "Portal": {
+    "welcome": "Bienvenue chez Meziani AI Labs",
+    "subtitle": "Portail SaaS Centralisé",
+    "dragunTitle": "Dragun",
+    "dragunDesc": "Recouvrement de Créances Automatisé",
+    "flowTitle": "Aura Flow",
+    "flowDesc": "Flux de Travail Opérationnels",
+    "taxesTitle": "Aura Taxes",
+    "taxesDesc": "Comptabilité et Clone QuickBooks",
+    "launch": "Lancer",
+    "comingSoon": "Bientôt Disponible"
   }
 }

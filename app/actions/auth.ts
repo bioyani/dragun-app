@@ -12,7 +12,7 @@ export async function signInWithGoogle() {
   const proto = h.get('x-forwarded-proto') ?? 'https';
   const baseUrl = process.env.NEXT_PUBLIC_URL ?? (host ? `${proto}://${host}` : null);
 
-  const dashboardPath = `/${routing.defaultLocale}/dashboard`;
+  const dashboardPath = `/${routing.defaultLocale}/portal`;
   const options = baseUrl
     ? { redirectTo: `${baseUrl}/api/auth/callback?next=${encodeURIComponent(dashboardPath)}` }
     : undefined;

@@ -605,7 +605,7 @@
     "signIn": "Sign in",
     "signUp": "Get started",
     "loginHeadline": "Welcome back",
-    "loginSubline": "Sign in to your recovery dashboard.",
+    "loginSubline": "Sign in to your Meziani AI Labs portal.",
     "registerHeadline": "Create your account",
     "registerSubline": "Set up your recovery workspace in a few minutes. No credit card required.",
     "errorTitle": "Something went wrong",
@@ -678,5 +678,17 @@
     "securedBy": "Secured by Stripe · 256-bit encryption",
     "onBehalfOf": "This communication is on behalf of {merchant}.",
     "poweredBy": "Powered by Dragun.app"
+  },
+  "Portal": {
+    "welcome": "Welcome to Meziani AI Labs",
+    "subtitle": "Central SaaS Dashboard",
+    "dragunTitle": "Dragun",
+    "dragunDesc": "Automated Debt Recovery",
+    "flowTitle": "Aura Flow",
+    "flowDesc": "Operational Workflows",
+    "taxesTitle": "Aura Taxes",
+    "taxesDesc": "QuickBooks Clone & Accounting",
+    "launch": "Launch",
+    "comingSoon": "Coming Soon"
   }
 }
