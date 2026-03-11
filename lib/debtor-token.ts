@@ -1,15 +1,14 @@
 import crypto from 'crypto';
 
-const _secret = process.env.DEBTOR_PORTAL_SECRET;
-const SECRET = _secret || 'dev-only-fallback-not-for-production-use-32c';
+const SECRET = process.env.DEBTOR_PORTAL_SECRET;
 
 export function hasDebtorPortalSecret(): boolean {
-  return !!_secret && _secret.length >= 32;
+  return !!SECRET && SECRET.length >= 32;
 }
 
 function requireDebtorPortalSecret(): string {
-  if (!hasDebtorPortalSecret()) {
-    throw new Error('DEBTOR_PORTAL_SECRET must be set (min 32 chars) in production');
+  if (!SECRET || SECRET.length < 32) {
+    throw new Error('DEBTOR_PORTAL_SECRET must be set (min 32 chars)');
   }
 
   return SECRET;
@@ -41,7 +40,8 @@ export function verifyDebtorToken(token: string): { debtorId: string } | null {
     const expires = parseInt(expiresStr, 10);
     if (!Number.isFinite(expires) || Date.now() > expires) return null;
     const payload = `${debtorId}:${expiresStr}`;
-    const expected = crypto.createHmac('sha256', SECRET).update(payload).digest('hex');
+    const secret = requireDebtorPortalSecret();
+    const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
     // Constant-time compare — same length guaranteed (both full hex)
     if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
     return { debtorId };
