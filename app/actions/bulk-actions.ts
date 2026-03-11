@@ -12,13 +12,32 @@ export async function bulkSendOutreach(debtorIds: string[]): Promise<{ success: 
 
   const errors: string[] = [];
   let sent = 0;
-  for (const id of debtorIds) {
-    const fd = new FormData();
-    fd.set('debtor_id', id);
-    const res = await sendInitialOutreach(fd);
-    if (res.success) sent++;
-    else errors.push(`${id}: ${res.error}`);
+
+  // Concurrency limit of 5 to avoid rate-limiting from email/SMS providers
+  const CONCURRENCY_LIMIT = 5;
+
+  for (let i = 0; i < debtorIds.length; i += CONCURRENCY_LIMIT) {
+    const chunk = debtorIds.slice(i, i + CONCURRENCY_LIMIT);
+
+    const results = await Promise.allSettled(
+      chunk.map(async (id) => {
+        const fd = new FormData();
+        fd.set('debtor_id', id);
+        const res = await sendInitialOutreach(fd);
+        if (!res.success) throw new Error(`${id}: ${res.error}`);
+        return id;
+      })
+    );
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        sent++;
+      } else {
+        errors.push(result.reason.message || String(result.reason));
+      }
+    }
   }
+
   revalidatePath('/[locale]/dashboard', 'page');
   return { success: errors.length === 0, sent, errors };
 }
