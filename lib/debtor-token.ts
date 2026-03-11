@@ -1,27 +1,34 @@
 import crypto from 'crypto';
 
 const _secret = process.env.DEBTOR_PORTAL_SECRET;
-const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
+const SECRET = _secret || 'dev-only-fallback-not-for-production-use-32c';
 
-if (!_secret || _secret.length < 32) {
-  if (process.env.NODE_ENV === 'production' && !isBuild) {
+export function hasDebtorPortalSecret(): boolean {
+  return !!_secret && _secret.length >= 32;
+}
+
+function requireDebtorPortalSecret(): string {
+  if (!hasDebtorPortalSecret()) {
     throw new Error('DEBTOR_PORTAL_SECRET must be set (min 32 chars) in production');
   }
+
+  return SECRET;
 }
-// Dev-only fallback — never reaches production due to guard above
-const SECRET = _secret || 'dev-only-fallback-not-for-production-use-32c';
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 1 day
 
 export function createDebtorToken(debtorId: string): string {
+  const secret = requireDebtorPortalSecret();
   const expires = Date.now() + TOKEN_TTL_MS;
   const payload = `${debtorId}:${expires}`;
   // Full 256-bit HMAC — no truncation
-  const sig = crypto.createHmac('sha256', SECRET).update(payload).digest('hex');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   return Buffer.from(`${payload}:${sig}`).toString('base64url');
 }
 
 export function verifyDebtorToken(token: string): { debtorId: string } | null {
+  if (!hasDebtorPortalSecret()) return null;
+
   try {
     const decoded = Buffer.from(token, 'base64url').toString('utf-8');
     const parts = decoded.split(':');

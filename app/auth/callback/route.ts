@@ -1,11 +1,16 @@
-import { createClient } from '@/lib/supabase/server';
+import { createRouteClient } from '@/lib/supabase/route';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { routing } from '@/i18n/routing';
 
 const DEFAULT_DASHBOARD = `/${routing.defaultLocale}/dashboard`;
 
-export async function GET(request: Request) {
+function isOwnerEmail(email?: string | null) {
+  const ownerEmail = process.env.OWNER_EMAIL?.trim().toLowerCase();
+  return !!ownerEmail && !!email && email.trim().toLowerCase() === ownerEmail;
+}
+
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   // if "next" is in search params, use it as the redirection URL after confirmation
@@ -13,7 +18,7 @@ export async function GET(request: Request) {
   const safeNext = next.startsWith('/') ? next : DEFAULT_DASHBOARD;
 
   if (code) {
-    const supabase = await createClient();
+    const { supabase, finalizeResponse } = createRouteClient(request);
     const {
       data: { user },
       error,
@@ -71,12 +76,14 @@ export async function GET(request: Request) {
         .single();
 
       const onboardingCompleted = merchantData?.onboarding_completed ?? merchantData?.onboarding_complete ?? false;
-      const defaultPostLogin = onboardingCompleted
+      const defaultPostLogin = isOwnerEmail(user.email)
         ? DEFAULT_DASHBOARD
-        : `/${routing.defaultLocale}/onboarding/profile`;
+        : onboardingCompleted
+          ? DEFAULT_DASHBOARD
+          : `/${routing.defaultLocale}/onboarding/profile`;
       const redirectPath = safeNext !== DEFAULT_DASHBOARD ? safeNext : defaultPostLogin;
 
-      return NextResponse.redirect(`${origin}${redirectPath}`);
+      return finalizeResponse(`${origin}${redirectPath}`);
     }
   }
 

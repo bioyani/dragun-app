@@ -28,7 +28,7 @@ import DashboardAlerts from '@/components/dashboard/DashboardAlerts';
 import FocusStrip from '@/components/dashboard/FocusStrip';
 import InsightsPanel from '@/components/dashboard/InsightsPanel';
 import { getRecoveryScore } from '@/lib/recovery-score';
-import { createDebtorToken } from '@/lib/debtor-token';
+import { createDebtorToken, hasDebtorPortalSecret } from '@/lib/debtor-token';
 import DebtorTableWithBulk from '@/components/dashboard/DebtorTableWithBulk';
 import DebtorFilters from '@/components/dashboard/DebtorFilters';
 import TopDebtors from '@/components/dashboard/TopDebtors';
@@ -73,7 +73,6 @@ export default async function DashboardPage({
   const { locale } = await params;
   const systemOwner = await isOwner();
   const stripeSuccess = search.stripe_success === 'true';
-  const forceDashboard = search.force_dashboard === 'true';
 
   const statusFilter = String(
     (Array.isArray(search.status) ? search.status[0] : search.status) || 'all',
@@ -206,7 +205,7 @@ export default async function DashboardPage({
   }
 
   const onboardingDone = merchant.onboarding_completed ?? merchant.onboarding_complete;
-  if (!onboardingDone && !forceDashboard && !systemOwner) {
+  if (!onboardingDone && !systemOwner) {
     redirect({ href: '/onboarding/profile', locale });
   }
 
@@ -314,9 +313,12 @@ export default async function DashboardPage({
     return getRecoveryScore(b) - getRecoveryScore(a);
   });
 
+  const canCreateDebtorPortalLinks = hasDebtorPortalSecret();
   const prioritizedDebtorsWithPortal: DebtorRow[] = prioritizedDebtors.map((d) => ({
     ...d,
-    portalChatUrl: `/chat/${d.id}?token=${createDebtorToken(d.id)}`,
+    portalChatUrl: canCreateDebtorPortalLinks
+      ? `/chat/${d.id}?token=${createDebtorToken(d.id)}`
+      : undefined,
   }));
 
   const actionTimelineByDebtor = recoveryActions.reduce<

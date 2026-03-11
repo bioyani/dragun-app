@@ -1,0 +1,15 @@
+
+> dragun-app@0.1.1 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.2.83:3000
+- Environments: .env.local, .env
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Invalid Sentry Dsn: https://...@o0.ingest.sentry.io/0
+✓ Ready in 2.2s

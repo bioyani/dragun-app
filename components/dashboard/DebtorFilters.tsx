@@ -59,7 +59,6 @@ export default function DebtorFilters({
         {filterOpen && (
           <div className="absolute right-0 z-40 mt-1.5 w-64 min-w-[min(100vw-2rem,16rem)] max-w-[calc(100vw-2rem)] rounded-xl border border-base-300 bg-base-200 p-4 shadow-xl">
             <form method="get" className="space-y-3">
-              <input type="hidden" name="force_dashboard" value="true" />
               <label className="block">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-base-content/50">{t('allStatus')}</span>
                 <select

@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
 
+function isOwnerEmail(email?: string | null) {
+  const ownerEmail = process.env.OWNER_EMAIL?.trim().toLowerCase();
+  return !!ownerEmail && !!email && email.trim().toLowerCase() === ownerEmail;
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -77,6 +82,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && path.includes('/dashboard')) {
+    if (isOwnerEmail(user.email)) {
+      return supabaseResponse;
+    }
+
     const { data: merchant } = await supabase
       .from('merchants')
       .select('onboarding_complete, onboarding_completed')
