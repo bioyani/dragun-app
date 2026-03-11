@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { CommsChannel, CommsProviderName } from '@/lib/comms/types';
 
 const warnedKeys = new Set<string>();
@@ -112,12 +113,21 @@ export function getTelnyxConfig(): {
 export function isCommsTestTokenValid(requestToken: string | null): boolean {
   const configuredToken = clean(process.env.COMMS_TEST_TOKEN);
 
-  if (!configuredToken) {
-    warnOnce('comms-test-token:missing', 'COMMS_TEST_TOKEN is missing; test route will reject requests.');
+  if (!configuredToken || !requestToken) {
+    if (!configuredToken) {
+      warnOnce('comms-test-token:missing', 'COMMS_TEST_TOKEN is missing; test route will reject requests.');
+    }
     return false;
   }
 
-  return requestToken === configuredToken;
+  try {
+    const expected = Buffer.from(configuredToken);
+    const actual = Buffer.from(requestToken);
+    if (expected.length !== actual.length) return false;
+    return crypto.timingSafeEqual(expected, actual);
+  } catch {
+    return false;
+  }
 }
 
 export function buildNoopResultMeta(channel: CommsChannel): {

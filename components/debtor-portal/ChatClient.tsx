@@ -1,6 +1,6 @@
 'use client';
 
-import { useChat } from '@ai-sdk/react';
+import { useChat, UIMessage } from '@ai-sdk/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -44,11 +44,14 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [chatError, setChatError] = useState<string | null>(null);
-  const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  
+  const { messages, setMessages, input, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/chat',
     body: { debtorId, token },
     onError: () => setChatError(t('agentUnavailable')),
   });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Hydrate conversation from server-provided data or request agent first message
   useEffect(() => {
@@ -56,10 +59,10 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
 
     async function hydrateConversation() {
       if (initialConversations && initialConversations.length > 0) {
-        const hydrated = initialConversations.map((r) => ({
+        const hydrated: UIMessage[] = initialConversations.map((r) => ({
           id: generateId(),
           role: r.role as 'user' | 'assistant' | 'system',
-          content: r.message ?? '',
+          parts: [{ type: 'text', text: r.message ?? '' }],
         }));
         setMessages(hydrated);
         return;
@@ -82,7 +85,7 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
         }
         const text = await res.text();
         if (text?.trim()) {
-          setMessages([{ id: generateId(), role: 'assistant', content: text.trim() }]);
+          setMessages([{ id: generateId(), role: 'assistant', parts: [{ type: 'text', text: text.trim() }] }]);
         }
       } catch {
         setChatError(t('agentUnavailable'));
@@ -189,7 +192,7 @@ export default function ChatClient({ debtorId, token, initialDebtor, initialConv
                   : 'bg-base-200 text-base-content border border-base-300/30'
               }`}
             >
-              {m.content}
+              {m.parts.map((part, idx) => part.type === 'text' ? <span key={idx}>{part.text}</span> : null)}
             </div>
             <div className="chat-footer opacity-40 text-[10px] mt-0.5">
               {m.role === 'user' ? t('sent') : t('dragunAI')}

@@ -7,12 +7,20 @@ const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // We don't want to crash the build if they are.
 const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
-if (!isBuild) {
-  if (!supabaseUrl) throw new Error('NEXT_PUBLIC_SUPABASE_URL is required');
-  if (!supabaseServiceRole) throw new Error('SUPABASE_SERVICE_ROLE_KEY is required — do not fall back to anon key');
+// In non-build runtimes, fail *softly* instead of throwing so the app
+// can render a graceful "closed / misconfigured" state instead of 500.
+const hasAdminConfig = !!supabaseUrl && !!supabaseServiceRole;
+
+if (!isBuild && !hasAdminConfig) {
+  console.warn(
+    '[supabase-admin] Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
+      'Admin client will use a placeholder backend; dashboard features may be unavailable.',
+  );
 }
 
 export const supabaseAdmin = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseServiceRole || 'service-role-placeholder'
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseServiceRole || 'service-role-placeholder',
 );
+
+export const hasSupabaseAdminConfig = hasAdminConfig;

@@ -209,7 +209,7 @@ export async function POST(req: Request) {
     };
 
     let systemPrompt: string;
-    let modelMessages: ModelMessage[];
+    let coreMessages: ModelMessage[];
     let lastMessageText = '';
 
     if (isInitiate) {
@@ -224,7 +224,7 @@ export async function POST(req: Request) {
         console.warn('[/api/chat] RAG context failed (initiate)', ragErr);
       }
       systemPrompt = buildSystemPrompt(merchant, safeDebtor, context) + OPENING_INSTRUCTION;
-      modelMessages = [{ role: 'user' as const, content: '[Open the conversation with your first message to the debtor.]' }];
+      coreMessages = [{ role: 'user' as const, content: '[Open the conversation with your first message to the debtor.]' }];
     } else {
       // Normalize to { role, content } and build ModelMessage[] for streamText.
       const normalizedMessages = messages.map((m) => ({
@@ -234,21 +234,20 @@ export async function POST(req: Request) {
           : '',
       }));
 
-      function toMessageContent(raw: unknown): string | Array<{ type: 'text'; text: string }> {
+      function toMessageContent(raw: unknown): string {
         if (typeof raw === 'string' && raw.length > 0) return raw;
         if (Array.isArray(raw)) {
-          const parts = raw
+          return raw
             .map((p) => {
               if (p && typeof p === 'object' && 'text' in (p as object))
-                return { type: 'text' as const, text: String((p as { text?: unknown }).text ?? '') };
-              if (typeof p === 'string') return { type: 'text' as const, text: p };
-              return null;
+                return String((p as { text?: unknown }).text ?? '');
+              if (typeof p === 'string') return p;
+              return '';
             })
-            .filter((p): p is { type: 'text'; text: string } => p != null && p.text.length > 0);
-          if (parts.length > 0) return parts;
+            .join('');
         }
         if (raw != null && typeof raw === 'object' && 'text' in (raw as object))
-          return [{ type: 'text' as const, text: String((raw as { text?: unknown }).text ?? '') }];
+          return String((raw as { text?: unknown }).text ?? '');
         return '';
       }
 
@@ -256,21 +255,13 @@ export async function POST(req: Request) {
         .map((m) => {
           const role = (m.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant';
           const content = toMessageContent(m.content);
-          const isEmpty =
-            content === '' || (Array.isArray(content) && content.every((p) => !p.text?.trim()));
-          return isEmpty ? null : ({ role, content } as ModelMessage);
+          return content === '' ? null : ({ role, content } as ModelMessage);
         })
         .filter((m): m is ModelMessage => m != null);
 
       const lastNorm = normalizedMessages[normalizedMessages.length - 1];
       if (lastNorm?.role === 'user') {
-        const c = lastNorm.content;
-        if (typeof c === 'string') lastMessageText = c;
-        else if (Array.isArray(c))
-          lastMessageText = (c as Array<{ type?: string; text?: string }>)
-            .filter((p) => p?.type === 'text')
-            .map((p) => p.text ?? '')
-            .join('');
+        lastMessageText = toMessageContent(lastNorm.content);
       }
 
       if (!lastMessageText || lastMessageText.trim().length === 0) {
@@ -283,7 +274,7 @@ export async function POST(req: Request) {
         return Response.json({ error: 'Message too long' }, { status: 400 });
       }
 
-      modelMessages = built;
+      coreMessages = built;
       let context = '';
       try {
         const rag = await getRagContext(merchantId, RAG_QUERIES.chat(lastMessageText), {
@@ -313,10 +304,10 @@ export async function POST(req: Request) {
 
     for (let i = 0; i < modelsToTry.length; i++) {
       try {
-        const result = streamText({
+        const result = await streamText({
           model: modelsToTry[i],
           system: systemPrompt,
-          messages: modelMessages,
+          messages: coreMessages,
           temperature: 0.3,
           maxOutputTokens: 400,
           onFinish: async ({ text }) => {
@@ -348,7 +339,7 @@ export async function POST(req: Request) {
           },
         });
 
-        return result.toTextStreamResponse();
+        return result.toUIMessageStreamResponse();
       } catch (err) {
         lastError = err;
         if (isQuotaOrRateLimitError(err) && i < modelsToTry.length - 1) {

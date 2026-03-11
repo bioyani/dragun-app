@@ -36,6 +36,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   async redirects() {
     return [
       { source: '/dashboard', destination: '/en/dashboard', permanent: false },
