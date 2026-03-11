@@ -10,7 +10,7 @@ function sanitizeLocale(value: unknown) {
   return value === 'fr' ? 'fr' : 'en';
 }
 
-async function resolveBaseUrl(): Promise<string> {
+export async function resolveBaseUrl(): Promise<string> {
   const configured = process.env.NEXT_PUBLIC_URL;
   if (configured) {
     try {
