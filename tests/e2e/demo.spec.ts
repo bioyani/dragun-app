@@ -64,7 +64,7 @@ test.describe('Demo UI', () => {
 
     test('Footer links to demo page', async ({ page }) => {
       await page.goto('/en');
-      await page.getByRole('link', { name: 'Demo' }).click();
+      await page.getByRole('contentinfo').getByRole('link', { name: 'Demo' }).click();
       await expect(page).toHaveURL(/\/(en\/)?demo/);
     });
   });
