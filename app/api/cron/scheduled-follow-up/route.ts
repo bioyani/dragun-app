@@ -39,11 +39,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ processed: 0, message: 'No debtors due for follow-up' });
     }
 
-    let sent = 0;
-    for (const d of debtors) {
-      const res = await sendFollowUpEmail(d.id);
-      if (res.success) sent++;
-    }
+    const results = await Promise.allSettled(
+      debtors.map((d) => sendFollowUpEmail(d.id))
+    );
+
+    const sent = results.filter(
+      (r) => r.status === 'fulfilled' && r.value.success
+    ).length;
 
     return NextResponse.json({ processed: debtors.length, sent });
   } catch (error) {

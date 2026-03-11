@@ -18,7 +18,7 @@ test.describe('Demo UI', () => {
 
     test('Watch demo button scrolls to demo section', async ({ page }) => {
       await page.goto('/en');
-      await page.getByRole('link', { name: /watch.*demo/i }).first().click();
+      await page.getByRole('banner').getByRole('link', { name: /watch.*demo/i }).click();
       await expect(page.locator('#demo')).toBeInViewport();
     });
   });
@@ -64,7 +64,7 @@ test.describe('Demo UI', () => {
 
     test('Footer links to demo page', async ({ page }) => {
       await page.goto('/en');
-      await page.getByRole('link', { name: 'Demo' }).click();
+      await page.getByRole('contentinfo').getByRole('link', { name: 'Demo' }).click();
       await expect(page).toHaveURL(/\/(en\/)?demo/);
     });
   });
