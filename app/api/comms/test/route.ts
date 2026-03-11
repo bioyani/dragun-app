@@ -6,15 +6,6 @@ import { CommsDispatchRequest } from '@/lib/comms/types';
 export const runtime = 'nodejs';
 
 function readAuthToken(request: Request): string | null {
-  const direct =
-    request.headers.get('comms-test-token') ??
-    request.headers.get('x-comms-test-token') ??
-    request.headers.get('COMMS_TEST_TOKEN');
-
-  if (direct) {
-    return direct;
-  }
-
   const authHeader = request.headers.get('authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return null;
