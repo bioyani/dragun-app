@@ -15,7 +15,7 @@ function loadEnv() {
         if (!process.env[key]) process.env[key] = value;
       }
     }
-  } catch (err) {
+  } catch {
     console.warn('⚠️ No .env.local found. Ensure SUPABASE environment variables are exported in your terminal.');
   }
 }

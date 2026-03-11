@@ -21,7 +21,7 @@ async function loadEnv() {
         if (!process.env[key]) process.env[key] = val;
       }
     }
-  } catch (_) {
+  } catch {
     // .env.local may not exist
   }
 }
@@ -103,7 +103,7 @@ async function backendCheck() {
       },
     });
     if (res.ok) {
-      const rows = await res.json();
+      await res.json();
       console.log(`\n  ✓ merchants.data_retention_days column exists`);
     } else {
       const err = await res.json().catch(() => ({}));

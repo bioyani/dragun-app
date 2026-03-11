@@ -19,7 +19,7 @@ export default function RootInspection() {
       } else {
         setData(result.network_processes);
       }
-    } catch (_err) {
+    } catch {
       setError('Unexpected client-side error');
     } finally {
       setLoading(false);

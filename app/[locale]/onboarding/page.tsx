@@ -73,7 +73,7 @@ export default function OnboardingPage() {
     }
   }
 
-  const stepIcons = [Building2, ShieldCheck, FileText, Wallet, Rocket];
+
   const stepLabels = ['Business', 'Policy', 'Docs', 'Stripe', 'Launch'];
 
   return (

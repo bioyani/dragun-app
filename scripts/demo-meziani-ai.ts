@@ -17,7 +17,7 @@ function loadEnv() {
         if (!process.env[key]) process.env[key] = val;
       }
     }
-  } catch (_) {
+  } catch {
     console.warn('⚠️ No .env.local found – ensure required env vars are exported.');
   }
 }
