@@ -4,7 +4,7 @@ console.log('🧪 Testing getEffectivePlan...');
 
 let failed = false;
 
-function assertEqual(actual: any, expected: any, testName: string) {
+function assertEqual(actual: unknown, expected: unknown, testName: string) {
   if (actual === expected) {
     console.log(`✅ ${testName} passed`);
   } else {
