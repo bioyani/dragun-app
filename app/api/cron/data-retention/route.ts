@@ -22,41 +22,18 @@ export async function GET(req: Request) {
   }
 
   try {
-    const { data: merchants } = await supabaseAdmin
-      .from('merchants')
-      .select('id, data_retention_days')
-      .gt('data_retention_days', 0);
+    const { data, error } = await supabaseAdmin.rpc('apply_data_retention');
 
-    if (!merchants?.length) {
+    if (error) {
+      console.error('[cron/data-retention] RPC error:', error);
+      return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
+    }
+
+    if (!data || data.processed === 0) {
       return NextResponse.json({ processed: 0, message: 'No merchants with retention policy' });
     }
 
-    let totalDeleted = 0;
-
-    for (const m of merchants) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - m.data_retention_days);
-      const cutoffIso = cutoffDate.toISOString();
-
-      const { data: oldDebtors } = await supabaseAdmin
-        .from('debtors')
-        .select('id')
-        .eq('merchant_id', m.id)
-        .lt('created_at', cutoffIso);
-
-      if (!oldDebtors?.length) continue;
-
-      const debtorIds = oldDebtors.map((d) => d.id);
-
-      await supabaseAdmin.from('conversations').delete().in('debtor_id', debtorIds);
-      await supabaseAdmin.from('payments').delete().in('debtor_id', debtorIds);
-      await supabaseAdmin.from('recovery_actions').delete().in('debtor_id', debtorIds);
-      const { error } = await supabaseAdmin.from('debtors').delete().in('id', debtorIds);
-
-      if (!error) totalDeleted += debtorIds.length;
-    }
-
-    return NextResponse.json({ processed: merchants.length, deleted: totalDeleted });
+    return NextResponse.json({ processed: data.processed, deleted: data.deleted });
   } catch (error) {
     console.error('[cron/data-retention]', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
