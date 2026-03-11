@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { hasSupabaseAdminConfig, supabaseAdmin } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase/server';
 import { addDebtor } from '../../actions/add-debtor';
 import { revalidatePath } from 'next/cache';
@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { getMerchantId, isOwner } from '@/lib/auth';
 import { createStripeConnectAccount } from '@/app/actions/stripe-connect';
 import { createSubscriptionCheckout } from '@/app/actions/subscription';
-import { checkPaywall } from '@/lib/paywall';
+import { checkPaywall, getDebtorLimit, getEffectivePlan } from '@/lib/paywall';
 import { updateRecoveryStatus } from '@/app/actions/recovery-actions';
 import {
   CheckCircle2,
@@ -39,6 +39,23 @@ import type { DebtorRow, RecoveryActionRow } from '@/components/dashboard/dashbo
 import { getRagContext, RAG_QUERIES } from '@/lib/rag';
 import RootInspection from '@/components/dashboard/RootInspection';
 
+type DashboardMerchant = {
+  id: string;
+  email?: string | null;
+  name: string;
+  onboarding_completed?: boolean | null;
+  onboarding_complete?: boolean | null;
+  stripe_account_id?: string | null;
+  stripe_onboarding_complete?: boolean | null;
+  strictness_level?: number | null;
+  settlement_floor?: number | null;
+  data_retention_days?: number | null;
+  currency_preference?: string | null;
+  phone?: string | null;
+  plan?: string | null;
+  plan_active_until?: string | null;
+};
+
 export default async function DashboardPage({
   searchParams,
   params,
@@ -47,7 +64,11 @@ export default async function DashboardPage({
   params: Promise<{ locale: string }>;
 }) {
   const t = await getTranslations('Dashboard');
-  const merchantId = await getMerchantId();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const merchantId = (await getMerchantId()) ?? user?.id ?? null;
   const search = await searchParams;
   const { locale } = await params;
   const systemOwner = await isOwner();
@@ -71,21 +92,36 @@ export default async function DashboardPage({
     redirect({ href: '/login', locale });
   }
 
+  const resolvedMerchantId = merchantId as string;
+
+  const dataClient = hasSupabaseAdminConfig ? supabaseAdmin : supabase;
+  const safeSingle = async <T,>(runner: () => PromiseLike<{ data: T | null; error?: unknown }>) => {
+    try {
+      return await runner();
+    } catch {
+      return { data: null, error: { message: 'query failed' } };
+    }
+  };
+  const safeMany = async <T,>(runner: () => PromiseLike<{ data: T[] | null; error?: unknown }>) => {
+    try {
+      return await runner();
+    } catch {
+      return { data: [] as T[], error: { message: 'query failed' } };
+    }
+  };
+
   // --- Merchant resolution ---
-  const initialResponse = await supabaseAdmin
-    .from('merchants')
-    .select('*')
-    .eq('id', merchantId)
-    .single();
+  const initialResponse = await safeSingle(() =>
+    dataClient
+      .from('merchants')
+      .select('*')
+      .eq('id', resolvedMerchantId)
+      .single(),
+  );
 
-  let merchant = initialResponse.data;
+  let merchant: DashboardMerchant | null = initialResponse.data as DashboardMerchant | null;
 
-  if (initialResponse.error || !merchant) {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+  if ((initialResponse.error || !merchant) && hasSupabaseAdminConfig && user) {
     if (user) {
       const { data: existingByEmail } = await supabaseAdmin
         .from('merchants')
@@ -134,6 +170,25 @@ export default async function DashboardPage({
     }
   }
 
+  if (!merchant && user) {
+    merchant = {
+      id: user.id,
+      email: user.email,
+      name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Merchant',
+      onboarding_completed: true,
+      onboarding_complete: true,
+      stripe_account_id: null,
+      stripe_onboarding_complete: false,
+      strictness_level: 5,
+      settlement_floor: 0.8,
+      data_retention_days: 0,
+      currency_preference: 'USD',
+      phone: null,
+      plan: 'free',
+      plan_active_until: null,
+    };
+  }
+
   if (!merchant) {
     return (
       <div className="min-h-screen bg-base-100 flex items-center justify-center p-6">
@@ -151,7 +206,7 @@ export default async function DashboardPage({
   }
 
   const onboardingDone = merchant.onboarding_completed ?? merchant.onboarding_complete;
-  if (!onboardingDone && !forceDashboard) {
+  if (!onboardingDone && !forceDashboard && !systemOwner) {
     redirect({ href: '/onboarding/profile', locale });
   }
 
@@ -160,36 +215,52 @@ export default async function DashboardPage({
   const subscriptionSuccess = search.subscription_success === 'true';
 
   // --- Data fetching in parallel ---
-  const [
-    paywall,
-    { data: contract },
-    { data: debtorsData },
-    { data: recoveryActionsData },
-    { chunks: suggestedCitations }
-  ] = await Promise.all([
-    checkPaywall(merchantId!),
-    supabaseAdmin
-      .from('contracts')
-      .select('*')
-      .eq('merchant_id', merchantId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single(),
-    supabaseAdmin
-      .from('debtors')
-      .select('*')
-      .eq('merchant_id', merchantId),
-    supabaseAdmin
-      .from('recovery_actions')
-      .select('*')
-      .eq('merchant_id', merchantId)
-      .order('created_at', { ascending: false })
-      .limit(250),
-    getRagContext(merchantId!, RAG_QUERIES.dashboardSuggest, {
+  const [paywallResult, contractResponse, debtorsResponse, recoveryActionsResponse, { chunks: suggestedCitations }] = await Promise.all([
+    hasSupabaseAdminConfig
+      ? checkPaywall(resolvedMerchantId).catch(() => null)
+      : Promise.resolve(null),
+    safeSingle(() =>
+      dataClient
+        .from('contracts')
+        .select('*')
+        .eq('merchant_id', resolvedMerchantId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single(),
+    ),
+    safeMany(() =>
+      dataClient
+        .from('debtors')
+        .select('*')
+        .eq('merchant_id', resolvedMerchantId),
+    ),
+    safeMany(() =>
+      dataClient
+        .from('recovery_actions')
+        .select('*')
+        .eq('merchant_id', resolvedMerchantId)
+        .order('created_at', { ascending: false })
+        .limit(250),
+    ),
+    getRagContext(resolvedMerchantId, RAG_QUERIES.dashboardSuggest, {
       matchCount: 3,
       matchThreshold: 0.45,
     }),
   ]);
+
+  const contract = contractResponse.data;
+  const debtorsData = debtorsResponse.data ?? [];
+  const recoveryActionsData = recoveryActionsResponse.data ?? [];
+  const fallbackPlan = getEffectivePlan({
+    plan: merchant?.plan ?? undefined,
+    plan_active_until: merchant?.plan_active_until ?? null,
+  });
+  const paywall = paywallResult ?? {
+    allowed: (debtorsData?.filter((d) => d.status !== 'paid').length ?? 0) < getDebtorLimit(fallbackPlan),
+    currentCount: debtorsData?.filter((d) => d.status !== 'paid').length ?? 0,
+    limit: getDebtorLimit(fallbackPlan),
+    plan: fallbackPlan,
+  };
 
   const debtors: DebtorRow[] = (debtorsData ?? []) as DebtorRow[];
   const recoveryActions: RecoveryActionRow[] = (recoveryActionsData ?? []) as RecoveryActionRow[];
@@ -336,8 +407,8 @@ export default async function DashboardPage({
             locale={locale}
             merchant={{
               name: merchant.name,
-              strictness_level: merchant.strictness_level,
-              settlement_floor: merchant.settlement_floor,
+              strictness_level: merchant.strictness_level ?? 5,
+              settlement_floor: merchant.settlement_floor ?? 0.8,
               data_retention_days: merchant.data_retention_days,
               currency_preference: merchant.currency_preference,
               phone: merchant.phone,

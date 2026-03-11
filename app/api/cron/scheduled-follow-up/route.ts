@@ -9,6 +9,10 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const FOLLOW_UP_DAYS = 7;
 
 function isAuthorized(req: Request): boolean {
+  if (req.headers.get('x-vercel-cron') === '1') {
+    return true;
+  }
+
   const authHeader = req.headers.get('authorization');
   const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
   return Boolean(CRON_SECRET && bearer && bearer === CRON_SECRET);

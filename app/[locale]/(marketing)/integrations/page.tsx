@@ -3,7 +3,7 @@ import { useTranslations } from 'next-intl';
 
 export const metadata: Metadata = {
   title: 'Integrations | Dragun.app — Stripe, Supabase, AI Engine',
-  description: 'Connect Stripe for payments, Supabase for real-time data, and AI-powered intelligence. Mindbody integration coming soon.',
+  description: 'Connect Stripe for payments, Supabase for real-time data, and AI-powered intelligence for automated recovery workflows.',
   openGraph: {
     title: 'Integrations | Dragun.app',
     description: 'Stripe, Supabase, and AI integrations for automated debt recovery.',
