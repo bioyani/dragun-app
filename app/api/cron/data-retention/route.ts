@@ -31,32 +31,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ processed: 0, message: 'No merchants with retention policy' });
     }
 
-    let totalDeleted = 0;
+    const { data: totalDeleted, error } = await supabaseAdmin.rpc('delete_old_debtors');
 
-    for (const m of merchants) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - m.data_retention_days);
-      const cutoffIso = cutoffDate.toISOString();
-
-      const { data: oldDebtors } = await supabaseAdmin
-        .from('debtors')
-        .select('id')
-        .eq('merchant_id', m.id)
-        .lt('created_at', cutoffIso);
-
-      if (!oldDebtors?.length) continue;
-
-      const debtorIds = oldDebtors.map((d) => d.id);
-
-      await supabaseAdmin.from('conversations').delete().in('debtor_id', debtorIds);
-      await supabaseAdmin.from('payments').delete().in('debtor_id', debtorIds);
-      await supabaseAdmin.from('recovery_actions').delete().in('debtor_id', debtorIds);
-      const { error } = await supabaseAdmin.from('debtors').delete().in('id', debtorIds);
-
-      if (!error) totalDeleted += debtorIds.length;
+    if (error) {
+      console.error('[cron/data-retention] RPC error:', error);
+      throw error;
     }
 
-    return NextResponse.json({ processed: merchants.length, deleted: totalDeleted });
+    return NextResponse.json({ processed: merchants.length, deleted: totalDeleted || 0 });
   } catch (error) {
     console.error('[cron/data-retention]', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
