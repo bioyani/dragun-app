@@ -7,9 +7,6 @@ export const maxDuration = 60;
 const CRON_SECRET = process.env.CRON_SECRET;
 
 function isAuthorized(req: Request): boolean {
-  if (req.headers.get('x-vercel-cron') === '1') {
-    return true;
-  }
 
   const authHeader = req.headers.get('authorization');
   const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
